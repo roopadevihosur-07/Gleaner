@@ -1,0 +1,37 @@
+[
+  {
+    "id": "A1", "name": "West Oakland Pantry", "lat": 37.8060, "lng": -122.2960,
+    "window_open": 9.0, "window_close": 11.0, "priority": 1.0,
+    "demand_lbs": { "protein": 3200, "produce": 2600, "dairy": 900, "shelf_stable": 2400 }
+  },
+  {
+    "id": "A2", "name": "Fruitvale Family Center", "lat": 37.7750, "lng": -122.2240,
+    "window_open": 9.0, "window_close": 13.0, "priority": 0.9,
+    "demand_lbs": { "protein": 2800, "produce": 2200, "dairy": 800, "shelf_stable": 2000 }
+  },
+  {
+    "id": "A3", "name": "Hayward Community Hub", "lat": 37.6688, "lng": -122.0808,
+    "window_open": 10.0, "window_close": 14.0, "priority": 0.8,
+    "demand_lbs": { "protein": 2600, "produce": 2000, "dairy": 700, "shelf_stable": 2200 }
+  },
+  {
+    "id": "A4", "name": "Berkeley Food Pantry", "lat": 37.8715, "lng": -122.2730,
+    "window_open": 9.0, "window_close": 12.0, "priority": 0.85,
+    "demand_lbs": { "protein": 2100, "produce": 1900, "dairy": 600, "shelf_stable": 1600 }
+  },
+  {
+    "id": "A5", "name": "San Leandro Senior Meals", "lat": 37.7249, "lng": -122.1561,
+    "window_open": 11.0, "window_close": 15.0, "priority": 0.95,
+    "demand_lbs": { "protein": 2400, "produce": 1500, "dairy": 1100, "shelf_stable": 1400 }
+  },
+  {
+    "id": "A6", "name": "Fremont Family Resource", "lat": 37.5485, "lng": -121.9886,
+    "window_open": 12.0, "window_close": 16.0, "priority": 0.75,
+    "demand_lbs": { "protein": 2300, "produce": 1800, "dairy": 700, "shelf_stable": 2100 }
+  },
+  {
+    "id": "A7", "name": "Richmond Rescue Mission", "lat": 37.9358, "lng": -122.3477,
+    "window_open": 9.0, "window_close": 11.0, "priority": 0.9,
+    "demand_lbs": { "protein": 1900, "produce": 1600, "dairy": 500, "shelf_stable": 1500 }
+  }
+]

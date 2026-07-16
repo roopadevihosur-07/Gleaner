@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleaner — Disruption-to-Dispatch</title>
+<link href="https://fonts.googleapis.com/css2?family=Cera+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-void-black: #0e1012;
+    --color-deep-charcoal: #15171b;
+    --color-gunmetal: #1c1f24;
+    --color-graphite: #23262d;
+    --color-steel: #333943;
+    --color-pewter: #444d5a;
+    --color-slate: #566171;
+    --color-ash: #8b96aa;
+    --color-fog: #a0aaba;
+    --color-silver: #bbc2ce;
+    --color-cloud: #d5dae2;
+    --color-white: #ffffff;
+    --color-signal-blue: #007afc;
+    --color-deep-signal: #0062ca;
+    --color-map-green: #228a56;
+
+    --font-cera-pro: 'Cera Pro', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+
+    --spacing-4: 4px;
+    --spacing-8: 8px;
+    --spacing-12: 12px;
+    --spacing-16: 16px;
+    --spacing-20: 20px;
+    --spacing-24: 24px;
+    --spacing-32: 32px;
+    --spacing-40: 40px;
+    --spacing-48: 48px;
+    --spacing-60: 60px;
+    --spacing-96: 96px;
+
+    --radius-badges: 4px;
+    --radius-cards: 24px;
+    --radius-buttons: 100px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-void-black);
+    color: var(--color-fog);
+    font-family: var(--font-cera-pro);
+    font-weight: var(--font-weight-regular);
+    font-size: 16px;
+    line-height: 1.6;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Animated Background */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(circle at 20% 50%, rgba(0, 122, 252, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(34, 138, 86, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(0, 122, 252, 0.03) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+    animation: gradientShift 8s ease-in-out infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% {
+      background:
+        radial-gradient(circle at 20% 50%, rgba(0, 122, 252, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(34, 138, 86, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(0, 122, 252, 0.03) 0%, transparent 40%);
+    }
+    50% {
+      background:
+        radial-gradient(circle at 80% 50%, rgba(0, 122, 252, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(34, 138, 86, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 60% 30%, rgba(0, 122, 254, 0.03) 0%, transparent 40%);
+    }
+  }
+
+  /* Animated supply chain background */
+  #animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Content on top of animation */
+  header, .hero, .section, footer {
+    position: relative;
+    z-index: 10;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-white);
+  }
+
+  a { color: var(--color-signal-blue); text-decoration: none; }
+  a:hover { opacity: 0.8; }
+
+  header {
+    background: var(--color-void-black);
+    border-bottom: 1px solid var(--color-gunmetal);
+    padding: var(--spacing-16) var(--spacing-24);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 0 100px 50px rgba(14, 16, 18, 0.5);
+  }
+
+  .header-content {
+    max-width: 1344px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-8);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-white);
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    background: var(--color-graphite);
+    border-radius: 6px;
+    font-size: 22px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: var(--spacing-32);
+    align-items: center;
+  }
+
+  .nav-links a {
+    color: var(--color-fog);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--color-signal-blue);
+  }
+
+  .btn-primary {
+    background: var(--color-signal-blue);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-buttons);
+    padding: 10px 24px;
+    font-family: var(--font-cera-pro);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #0062d9;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-white);
+    border: 1px solid var(--color-silver);
+    border-radius: var(--radius-buttons);
+    padding: 10px 24px;
+    font-family: var(--font-cera-pro);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--color-white);
+  }
+
+  /* Hero Section */
+  .hero {
+    max-width: 1344px;
+    margin: 0 auto;
+    padding: var(--spacing-96) var(--spacing-24);
+    text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: var(--color-deep-signal);
+    color: var(--color-white);
+    border-radius: var(--radius-badges);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.84px;
+    margin-bottom: var(--spacing-24);
+  }
+
+  .hero h1 {
+    font-size: 68px;
+    font-weight: 700;
+    letter-spacing: -1.36px;
+    line-height: 1;
+    margin-bottom: var(--spacing-20);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-tagline {
+    font-size: 20px;
+    color: var(--color-fog);
+    max-width: 720px;
+    margin: 0 auto var(--spacing-40) auto;
+    line-height: 1.6;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: var(--spacing-16);
+    justify-content: center;
+    margin-bottom: var(--spacing-96);
+  }
+
+  .hero-image {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    height: 480px;
+    background: linear-gradient(135deg, var(--color-gunmetal) 0%, var(--color-graphite) 100%);
+    border-radius: var(--radius-cards);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-slate);
+    box-shadow: 0 0 100px 50px rgba(0, 122, 252, 0.1);
+    padding: 40px 20px;
+  }
+
+  .hero-flow-svg {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+  }
+
+  /* Flow diagram text styling */
+  .flow-step-label {
+    font-family: 'Cera Pro', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .flow-step-sublabel {
+    font-family: 'Cera Pro', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .flow-step-icon {
+    font-size: 40px;
+  }
+
+  /* Problem Section */
+  .section {
+    max-width: 1344px;
+    margin: 0 auto;
+    padding: var(--spacing-96) var(--spacing-24);
+    border-top: 1px solid var(--color-gunmetal);
+  }
+
+  .section-title {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: -0.88px;
+    margin-bottom: var(--spacing-48);
+    text-align: center;
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-32);
+    margin-bottom: var(--spacing-48);
+  }
+
+  .problem-card {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: var(--radius-cards);
+    padding: var(--spacing-32);
+    text-align: center;
+  }
+
+  .problem-icon {
+    font-size: 48px;
+    margin-bottom: var(--spacing-16);
+  }
+
+  .problem-card h3 {
+    font-size: 20px;
+    margin-bottom: var(--spacing-12);
+  }
+
+  .problem-card p {
+    font-size: 14px;
+    color: var(--color-ash);
+    line-height: 1.6;
+  }
+
+  /* Solution Section */
+  .solution-intro {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: var(--radius-cards);
+    padding: var(--spacing-40);
+    margin-bottom: var(--spacing-60);
+    text-align: center;
+  }
+
+  .solution-intro h3 {
+    font-size: 28px;
+    margin-bottom: var(--spacing-16);
+  }
+
+  .solution-intro p {
+    font-size: 16px;
+    color: var(--color-fog);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* Flow Section */
+  .flow-container {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: var(--spacing-24);
+    overflow-x: auto;
+    padding: var(--spacing-24) 0;
+  }
+
+  .flow-step {
+    flex: 1;
+    min-width: 200px;
+    background: var(--color-gunmetal);
+    border: 1px solid var(--color-steel);
+    border-radius: var(--radius-cards);
+    padding: var(--spacing-32);
+    text-align: center;
+    position: relative;
+  }
+
+  .flow-step::after {
+    content: "→";
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 32px;
+    color: var(--color-signal-blue);
+    font-weight: 700;
+  }
+
+  .flow-step:last-child::after {
+    display: none;
+  }
+
+  .step-number {
+    width: 44px;
+    height: 44px;
+    background: var(--color-signal-blue);
+    color: var(--color-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    margin: 0 auto var(--spacing-16) auto;
+  }
+
+  .flow-step h4 {
+    font-size: 16px;
+    margin-bottom: var(--spacing-12);
+  }
+
+  .flow-step p {
+    font-size: 13px;
+    color: var(--color-ash);
+    line-height: 1.6;
+  }
+
+  .flow-step .icon {
+    font-size: 40px;
+    margin-bottom: var(--spacing-12);
+  }
+
+  /* Features Section */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-32);
+  }
+
+  .feature {
+    display: flex;
+    gap: var(--spacing-16);
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--color-graphite);
+    border-radius: var(--radius-badges);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .feature-content h4 {
+    font-size: 16px;
+    margin-bottom: var(--spacing-8);
+  }
+
+  .feature-content p {
+    font-size: 14px;
+    color: var(--color-ash);
+  }
+
+  /* Impact Section */
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-24);
+    text-align: center;
+    margin-top: var(--spacing-60);
+  }
+
+  .impact-card {
+    background: var(--color-gunmetal);
+    border: 1px solid var(--color-steel);
+    border-radius: var(--radius-cards);
+    padding: var(--spacing-32);
+  }
+
+  .impact-number {
+    font-size: 44px;
+    font-weight: 700;
+    color: var(--color-signal-blue);
+    margin-bottom: var(--spacing-8);
+  }
+
+  .impact-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.84px;
+    color: var(--color-slate);
+  }
+
+  /* CTA Section */
+  .cta-section {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: var(--radius-cards);
+    padding: var(--spacing-60);
+    text-align: center;
+    margin-top: var(--spacing-96);
+  }
+
+  .cta-section h2 {
+    font-size: 36px;
+    margin-bottom: var(--spacing-16);
+  }
+
+  .cta-section p {
+    font-size: 16px;
+    color: var(--color-fog);
+    margin-bottom: var(--spacing-32);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--color-deep-charcoal);
+    border-top: 1px solid var(--color-gunmetal);
+    padding: var(--spacing-40) var(--spacing-24);
+    margin-top: var(--spacing-96);
+  }
+
+  .footer-content {
+    max-width: 1344px;
+    margin: 0 auto;
+    text-align: center;
+    color: var(--color-slate);
+    font-size: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 44px; }
+    .hero-tagline { font-size: 16px; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .impact-grid { grid-template-columns: repeat(2, 1fr); }
+    .flow-container { flex-direction: column; }
+    .flow-step::after { display: none; }
+    .nav-links { flex-direction: column; gap: var(--spacing-16); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="animated-bg"></canvas>
+
+<header>
+  <div class="header-content">
+    <div class="logo">
+      <div class="logo-icon">🌾</div>
+      <span>Gleaner</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#problem">The Problem</a>
+      <a href="#solution">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="/architecture">Architecture</a>
+      <a href="/app" class="btn-primary">Launch App →</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-badge">AI-Powered Supply Chain Orchestration</div>
+  <h1>Gleaner</h1>
+  <p class="hero-tagline">Turn supply shocks into coordinated recovery plans in seconds—every option scored in meals.</p>
+  <div class="hero-cta">
+    <a href="/app" class="btn-primary">Launch Gleaner →</a>
+    <button class="btn-secondary" onclick="document.getElementById('problem').scrollIntoView({ behavior: 'smooth' })">Learn More</button>
+  </div>
+  <div class="hero-image">
+    <svg viewBox="0 0 1200 300" class="hero-flow-svg" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="heroArrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#007afc;stop-opacity:0.2" />
+          <stop offset="50%" style="stop-color:#007afc;stop-opacity:0.6" />
+          <stop offset="100%" style="stop-color:#007afc;stop-opacity:0.2" />
+        </linearGradient>
+        <filter id="heroGlow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Background connecting line -->
+      <line x1="80" y1="150" x2="1120" y2="150" stroke="url(#heroArrowGradient)" stroke-width="3" opacity="0.6"/>
+
+      <!-- Step 1: Supply -->
+      <g style="animation: slideIn 0.8s ease-out;">
+        <rect x="20" y="70" width="120" height="160" rx="16" fill="#1c1f24" stroke="#007afc" stroke-width="2" opacity="0.8"/>
+        <circle cx="80" cy="95" r="32" fill="#23262d" stroke="#007afc" stroke-width="2" filter="url(#heroGlow)"/>
+        <text x="80" y="108" font-size="40" text-anchor="middle" fill="#007afc">📦</text>
+        <text x="80" y="155" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'" letter-spacing="-0.02em">Supply</text>
+        <text x="80" y="180" font-size="13" font-weight="500" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Food arrives</text>
+      </g>
+
+      <!-- Arrow 1 -->
+      <g opacity="0.7" style="animation: slideIn 0.8s ease-out 0.15s both;">
+        <line x1="150" y1="150" x2="210" y2="150" stroke="#007afc" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="210,150 198,145 203,150 198,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 2: Disruption -->
+      <g style="animation: slideIn 0.8s ease-out 0.15s both;">
+        <rect x="220" y="70" width="120" height="160" rx="16" fill="#1c1f24" stroke="#0062ca" stroke-width="2" opacity="0.8"/>
+        <circle cx="280" cy="95" r="32" fill="#23262d" stroke="#0062ca" stroke-width="2" filter="url(#heroGlow)"/>
+        <text x="280" y="108" font-size="40" text-anchor="middle" fill="#0062ca">⚡</text>
+        <text x="280" y="155" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'" letter-spacing="-0.02em">Disruption</text>
+        <text x="280" y="180" font-size="13" font-weight="500" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Cut or delayed</text>
+      </g>
+
+      <!-- Arrow 2 -->
+      <g opacity="0.7" style="animation: slideIn 0.8s ease-out 0.3s both;">
+        <line x1="350" y1="150" x2="410" y2="150" stroke="#007afc" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="410,150 398,145 403,150 398,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 3: Gleaner -->
+      <g style="animation: slideIn 0.8s ease-out 0.3s both;">
+        <rect x="420" y="70" width="120" height="160" rx="16" fill="#1c1f24" stroke="#007afc" stroke-width="2" opacity="0.8"/>
+        <circle cx="480" cy="95" r="32" fill="#23262d" stroke="#007afc" stroke-width="2" filter="url(#heroGlow)"/>
+        <text x="480" y="108" font-size="40" text-anchor="middle" fill="#007afc">🧠</text>
+        <text x="480" y="155" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'" letter-spacing="-0.02em">Gleaner</text>
+        <text x="480" y="180" font-size="13" font-weight="500" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">30 seconds</text>
+      </g>
+
+      <!-- Arrow 3 -->
+      <g opacity="0.7" style="animation: slideIn 0.8s ease-out 0.45s both;">
+        <line x1="550" y1="150" x2="610" y2="150" stroke="#007afc" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="610,150 598,145 603,150 598,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 4: Delivery -->
+      <g style="animation: slideIn 0.8s ease-out 0.45s both;">
+        <rect x="620" y="70" width="120" height="160" rx="16" fill="#1c1f24" stroke="#228a56" stroke-width="2" opacity="0.8"/>
+        <circle cx="680" cy="95" r="32" fill="#23262d" stroke="#228a56" stroke-width="2" filter="url(#heroGlow)"/>
+        <text x="680" y="108" font-size="40" text-anchor="middle" fill="#228a56">🚚</text>
+        <text x="680" y="155" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'" letter-spacing="-0.02em">Delivery</text>
+        <text x="680" y="180" font-size="13" font-weight="500" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Optimized</text>
+      </g>
+
+      <!-- Arrow 4 -->
+      <g opacity="0.7" style="animation: slideIn 0.8s ease-out 0.6s both;">
+        <line x1="750" y1="150" x2="810" y2="150" stroke="#007afc" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="810,150 798,145 803,150 798,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 5: Impact -->
+      <g style="animation: slideIn 0.8s ease-out 0.6s both;">
+        <rect x="820" y="70" width="120" height="160" rx="16" fill="#1c1f24" stroke="#228a56" stroke-width="2" opacity="0.8"/>
+        <circle cx="880" cy="95" r="32" fill="#23262d" stroke="#228a56" stroke-width="2" filter="url(#heroGlow)"/>
+        <text x="880" y="108" font-size="40" text-anchor="middle" fill="#228a56">🍜</text>
+        <text x="880" y="155" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'" letter-spacing="-0.02em">Impact</text>
+        <text x="880" y="180" font-size="13" font-weight="500" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">11K meals</text>
+      </g>
+
+      <!-- Arrow 5 -->
+      <g opacity="0.7" style="animation: slideIn 0.8s ease-out 0.75s both;">
+        <line x1="950" y1="150" x2="1010" y2="150" stroke="#007afc" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="1010,150 998,145 1003,150 998,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 6: Approved -->
+      <g style="animation: slideIn 0.8s ease-out 0.75s both;">
+        <rect x="1020" y="70" width="120" height="160" rx="16" fill="#1c1f24" stroke="#228a56" stroke-width="2" opacity="0.8"/>
+        <circle cx="1080" cy="95" r="32" fill="#23262d" stroke="#228a56" stroke-width="2" filter="url(#heroGlow)"/>
+        <text x="1080" y="108" font-size="40" text-anchor="middle" fill="#228a56">✓</text>
+        <text x="1080" y="155" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'" letter-spacing="-0.02em">Approved</text>
+        <text x="1080" y="180" font-size="13" font-weight="500" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Human OK</text>
+      </g>
+
+      <!-- Pulsing data flow dots -->
+      <circle cx="150" cy="150" r="5" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="5;10;5" dur="2.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="350" cy="150" r="5" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="5;10;5" dur="2.4s" repeatCount="indefinite" begin="0.4s"/>
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.4s" repeatCount="indefinite" begin="0.4s"/>
+      </circle>
+      <circle cx="550" cy="150" r="5" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="5;10;5" dur="2.4s" repeatCount="indefinite" begin="0.8s"/>
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.4s" repeatCount="indefinite" begin="0.8s"/>
+      </circle>
+      <circle cx="750" cy="150" r="5" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="5;10;5" dur="2.4s" repeatCount="indefinite" begin="1.2s"/>
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.4s" repeatCount="indefinite" begin="1.2s"/>
+      </circle>
+      <circle cx="950" cy="150" r="5" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="5;10;5" dur="2.4s" repeatCount="indefinite" begin="1.6s"/>
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.4s" repeatCount="indefinite" begin="1.6s"/>
+      </circle>
+    </svg>
+  </div>
+
+  <style>
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</section>
+
+<!-- Problem Section -->
+<section class="section" id="problem">
+  <h2 class="section-title">The Crisis Food Banks Face</h2>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">⚡</div>
+      <h3>Disruptions Hit Fast</h3>
+      <p>Federal cuts or supply shortfalls happen without warning. A single load delay ripples across 10+ agencies in minutes.</p>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-icon">⏱️</div>
+      <h3>No Time to Respond</h3>
+      <p>Today's recovery takes hours or days across two teams, two tools, two separate scrambles—while food spoils.</p>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-icon">💔</div>
+      <h3>Real People Miss Meals</h3>
+      <p>11,300 lbs of protein short = 9,417 meals at risk across vulnerable communities. Every hour matters.</p>
+    </div>
+  </div>
+
+  <div class="solution-intro">
+    <h3>Today's Workflow Doesn't Scale</h3>
+    <p>Procurement scrambles to fill the gap. Distribution scrambles to deliver it. No coordination. No speed. Two separate days become one crisis.</p>
+  </div>
+</section>
+
+<!-- Solution Section -->
+<section class="section" id="solution">
+  <h2 class="section-title">How Gleaner Works</h2>
+
+  <div class="flow-container">
+    <div class="flow-step">
+      <div class="step-number">1</div>
+      <div class="icon">◎</div>
+      <h4>Sense</h4>
+      <p>A supply shock is detected—a load cut, delayed shipment, or allocation pulled.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-number">2</div>
+      <div class="icon">▤</div>
+      <h4>Analyze</h4>
+      <p>Gleaner calculates the gap: shortfall in lbs, agencies at risk, meals at stake.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-number">3</div>
+      <div class="icon">$</div>
+      <h4>Fill</h4>
+      <p>Agent finds the cheapest reliable vendor that delivers in time, avoiding rush premiums.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-number">4</div>
+      <div class="icon">⟿</div>
+      <h4>Replan</h4>
+      <p>Routes are optimized: fewer miles, less fuel, perishables saved from spoiling.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-number">5</div>
+      <div class="icon">✓</div>
+      <h4>Approve</h4>
+      <p>A human planner reviews the plan. Gleaner proposes; humans decide. Always.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="step-number">6</div>
+      <div class="icon">✦</div>
+      <h4>Impact</h4>
+      <p>Meals protected. Dollars saved. Routes dispatched. Everything in one currency everyone understands: meals.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: var(--spacing-60); background: var(--color-deep-charcoal); border: 1px solid var(--color-gunmetal); border-radius: var(--radius-cards); padding: var(--spacing-32);">
+    <h3 style="font-size: 24px; margin-bottom: var(--spacing-16); text-align: center;">What Happens in the Demo</h3>
+    <p style="color: var(--color-fog); text-align: center; margin-bottom: var(--spacing-20);">Click "Simulate Issue" to trigger a real disruption. Watch Gleaner's agent work in real-time:</p>
+    <div class="features-grid" style="margin-top: var(--spacing-24);">
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <div class="feature-content">
+          <h4>Live Metrics Dashboard</h4>
+          <p>Active disruptions, total meals protected, cost savings update in real-time on the sidebar.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🗺️</div>
+        <div class="feature-content">
+          <h4>Interactive Google Maps</h4>
+          <p>See every agency, depot, and route plan on a live map. Toggle between optimized and naive routes.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-content">
+          <h4>Agent Trace</h4>
+          <p>Follow the AI agent's reasoning step-by-step as it sizes gaps, finds fill, and replans routes.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💡</div>
+        <div class="feature-content">
+          <h4>Plain-Language Plan</h4>
+          <p>A human-readable recommendation a warehouse lead can act on immediately. Simple, auditable, real.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="section" id="features">
+  <h2 class="section-title">Key Capabilities</h2>
+
+  <div class="features-grid" style="margin-top: var(--spacing-48);">
+    <div class="feature">
+      <div class="feature-icon">⚙️</div>
+      <div class="feature-content">
+        <h4>Genuine Agentic Planning</h4>
+        <p>Claude AI orchestrates and narrates; specialized tools do the arithmetic. Numbers are auditable, not hallucinated.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">🔗</div>
+      <div class="feature-content">
+        <h4>Unified Procurement + Distribution</h4>
+        <p>Closes the loop between the two halves of the same shock—no hand-off delays, no missed context.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-content">
+        <h4>Seconds, Not Days</h4>
+        <p>From shock signal to approved plan in under 30 seconds. Perishables stay fresh. Meals reach people on time.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">📍</div>
+      <div class="feature-content">
+        <h4>Real-Time Issue Detection</h4>
+        <p>Live issues feed pulls from maps and tracking systems. Disruptions trigger agent planning automatically for critical severity.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">👥</div>
+      <div class="feature-content">
+        <h4>Human-in-the-Loop</h4>
+        <p>Gleaner proposes; humans approve. Tools that make people better at their jobs, not tools that replace them.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-icon">🍜</div>
+      <div class="feature-content">
+        <h4>Everything Scored in Meals</h4>
+        <p>Not dollars, not logistics metrics. Meals protected. Meals at risk. Meals saved from spoiling. One metric everyone understands.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="impact-grid">
+    <div class="impact-card">
+      <div class="impact-number">30s</div>
+      <div class="impact-label">Time to Plan</div>
+    </div>
+    <div class="impact-card">
+      <div class="impact-number">11K+</div>
+      <div class="impact-label">Meals Protected / Event</div>
+    </div>
+    <div class="impact-card">
+      <div class="impact-number">$9.9K</div>
+      <div class="impact-label">Avg Cost Saved</div>
+    </div>
+    <div class="impact-card">
+      <div class="impact-number">116→79</div>
+      <div class="impact-label">Miles Optimized</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section">
+  <div class="cta-section">
+    <h2>Ready to See Gleaner in Action?</h2>
+    <p>Launch the live demo below. Simulate a real disruption and watch Gleaner orchestrate a recovery plan in seconds. No learning curve—just AI-powered supply chain intelligence.</p>
+    <a href="/app" class="btn-primary">Launch Gleaner →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-content">
+    <p>Gleaner — Disruption-to-Dispatch Agent for Food Banks</p>
+    <p style="margin-top: var(--spacing-8);">Built with Claude AI, Google Maps, and FastAPI | Data-driven. Auditable. Human-approved.</p>
+  </div>
+</footer>
+
+<script>
+// Animated background supply chain visualization
+const canvas = document.getElementById('animated-bg');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Animation parameters
+let time = 0;
+const nodes = [];
+const trucks = [];
+
+// Create nodes (agencies/depot)
+class Node {
+  constructor(x, y, type = 'agency') {
+    this.x = x;
+    this.y = y;
+    this.type = type; // 'depot' or 'agency'
+    this.pulse = Math.random() * Math.PI * 2;
+    this.pulseSpeed = Math.random() * 0.02 + 0.01;
+  }
+
+  draw(ctx, time) {
+    // Pulsing effect
+    const pulse = Math.sin(time * this.pulseSpeed + this.pulse) * 3 + 8;
+
+    if (this.type === 'depot') {
+      ctx.fillStyle = `rgba(0, 122, 252, ${0.6 + Math.sin(time * 0.01 + this.pulse) * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, pulse + 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Inner pulse
+      ctx.fillStyle = `rgba(0, 122, 252, 0.3)`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, pulse * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = `rgba(34, 138, 86, ${0.5 + Math.sin(time * 0.01 + this.pulse) * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, pulse, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+// Moving trucks along paths
+class Truck {
+  constructor(startNode, endNode, speed = 0.0015) {
+    this.startNode = startNode;
+    this.endNode = endNode;
+    this.progress = Math.random() * 0.5; // Start at random position
+    this.speed = speed + Math.random() * 0.0005;
+    this.index = Math.random();
+  }
+
+  update() {
+    this.progress += this.speed;
+    if (this.progress > 1) this.progress -= 1;
+  }
+
+  getPosition() {
+    const x = this.startNode.x + (this.endNode.x - this.startNode.x) * this.progress;
+    const y = this.startNode.y + (this.endNode.y - this.startNode.y) * this.progress;
+    return { x, y };
+  }
+
+  draw(ctx) {
+    const pos = this.getPosition();
+    const angle = Math.atan2(this.endNode.y - this.startNode.y, this.endNode.x - this.startNode.x);
+
+    // Truck icon
+    ctx.save();
+    ctx.translate(pos.x, pos.y);
+    ctx.rotate(angle);
+
+    ctx.fillStyle = 'rgba(0, 122, 252, 0.8)';
+    ctx.fillRect(0, -4, 12, 8); // Cabin
+
+    ctx.fillStyle = 'rgba(0, 122, 254, 0.6)';
+    ctx.fillRect(10, -5, 10, 10); // Cargo
+
+    ctx.restore();
+  }
+}
+
+// Connection line
+function drawConnection(ctx, from, to, time) {
+  const gradient = ctx.createLinearGradient(from.x, from.y, to.x, to.y);
+  const pulseAmount = Math.sin(time * 0.01) * 0.3 + 0.5;
+
+  gradient.addColorStop(0, `rgba(0, 122, 252, 0)`);
+  gradient.addColorStop(0.5, `rgba(0, 122, 252, ${0.2 * pulseAmount})`);
+  gradient.addColorStop(1, `rgba(34, 138, 86, 0)`);
+
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.stroke();
+}
+
+// Initialize
+function init() {
+  nodes.length = 0;
+  trucks.length = 0;
+
+  // Create a depot in center
+  const depot = new Node(canvas.width * 0.3, canvas.height * 0.5, 'depot');
+  nodes.push(depot);
+
+  // Create agencies around
+  const agencyCount = 6;
+  for (let i = 0; i < agencyCount; i++) {
+    const angle = (i / agencyCount) * Math.PI * 2;
+    const distance = Math.min(canvas.width, canvas.height) * 0.25;
+    const x = canvas.width * 0.5 + Math.cos(angle) * distance;
+    const y = canvas.height * 0.5 + Math.sin(angle) * distance;
+    nodes.push(new Node(x, y, 'agency'));
+  }
+
+  // Create truck routes (depot to each agency and back)
+  for (let i = 1; i < nodes.length; i++) {
+    trucks.push(new Truck(depot, nodes[i]));
+    trucks.push(new Truck(nodes[i], depot));
+  }
+}
+
+// Animation loop
+function animate() {
+  // Clear canvas
+  ctx.fillStyle = 'rgba(14, 16, 18, 0.3)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  time++;
+
+  // Draw connections
+  const depot = nodes[0];
+  for (let i = 1; i < nodes.length; i++) {
+    drawConnection(ctx, depot, nodes[i], time);
+  }
+
+  // Draw nodes
+  for (let node of nodes) {
+    node.draw(ctx, time);
+  }
+
+  // Update and draw trucks
+  for (let truck of trucks) {
+    truck.update();
+    truck.draw(ctx);
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// Handle resize
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  init();
+});
+
+// Start animation
+init();
+animate();
+</script>
+
+</body>
+</html>

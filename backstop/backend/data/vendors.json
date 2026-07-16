@@ -1,0 +1,16 @@
+[
+  { "vendor": "US Foods (spot)",        "category": "protein", "price_per_lb": 2.35, "lead_time_days": 1, "reliability": 0.78, "in_stock_lbs": 8000 },
+  { "vendor": "Golden Gate Meat Co.",   "category": "protein", "price_per_lb": 1.72, "lead_time_days": 2, "reliability": 0.91, "in_stock_lbs": 12000 },
+  { "vendor": "Central Valley Poultry", "category": "protein", "price_per_lb": 1.48, "lead_time_days": 2, "reliability": 0.86, "in_stock_lbs": 15000 },
+  { "vendor": "Emergency Broker A",     "category": "protein", "price_per_lb": 3.10, "lead_time_days": 1, "reliability": 0.62, "in_stock_lbs": 20000 },
+
+  { "vendor": "Bay Produce Wholesale",  "category": "produce", "price_per_lb": 0.85, "lead_time_days": 1, "reliability": 0.88, "in_stock_lbs": 20000 },
+  { "vendor": "Central Coast Farms",    "category": "produce", "price_per_lb": 0.62, "lead_time_days": 2, "reliability": 0.90, "in_stock_lbs": 30000 },
+  { "vendor": "Spot Produce Broker",    "category": "produce", "price_per_lb": 1.40, "lead_time_days": 1, "reliability": 0.66, "in_stock_lbs": 15000 },
+
+  { "vendor": "Berkeley Farms",         "category": "dairy",   "price_per_lb": 1.05, "lead_time_days": 2, "reliability": 0.92, "in_stock_lbs": 10000 },
+  { "vendor": "Clover Dairy",           "category": "dairy",   "price_per_lb": 1.30, "lead_time_days": 1, "reliability": 0.84, "in_stock_lbs": 8000 },
+
+  { "vendor": "Costco Business",        "category": "shelf_stable", "price_per_lb": 0.95, "lead_time_days": 1, "reliability": 0.87, "in_stock_lbs": 40000 },
+  { "vendor": "Restaurant Depot",       "category": "shelf_stable", "price_per_lb": 0.78, "lead_time_days": 2, "reliability": 0.89, "in_stock_lbs": 50000 }
+]
