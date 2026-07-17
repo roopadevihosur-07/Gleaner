@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes gradientShift {
+  0%, 100% {
+    background:
+      radial-gradient(circle at 20% 50%, rgba(0, 122, 252, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(34, 138, 86, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(0, 122, 252, 0.03) 0%, transparent 40%);
+  }
+  50% {
+    background:
+      radial-gradient(circle at 80% 50%, rgba(0, 122, 252, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(34, 138, 86, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 60% 30%, rgba(0, 122, 254, 0.03) 0%, transparent 40%);
+  }
+}
+
+@layer base {
+  body {
+    background-color: #0e1012;
+    color: #a0aaba;
+    font-family: 'Cera Pro', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(circle at 20% 50%, rgba(0, 122, 252, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(34, 138, 86, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(0, 122, 252, 0.03) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+    animation: gradientShift 8s ease-in-out infinite;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    color: white;
+  }
+
+  a {
+    color: #007afc;
+    transition: opacity 0.2s;
+  }
+
+  a:hover {
+    opacity: 0.8;
+  }
+}
+
+@layer components {
+  .card {
+    background-color: #15171b;
+    border: 1px solid #1c1f24;
+    border-radius: 24px;
+  }
+
+  .btn-primary {
+    background-color: #007afc;
+    color: white;
+    font-weight: bold;
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  .btn-secondary {
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 100px;
+    cursor: pointer;
+    border: 1px solid #bbc2ce;
+    transition: border-color 0.2s;
+    background-color: transparent;
+  }
+
+  .btn-secondary:hover {
+    border-color: white;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #566171;
+  }
+}

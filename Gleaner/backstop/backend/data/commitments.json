@@ -1,0 +1,42 @@
+[
+  {
+    "id": "TEFAP-1042",
+    "source": "USDA TEFAP",
+    "type": "federal",
+    "category": "protein",
+    "lbs": 18000,
+    "eta": "2026-07-17T07:30:00",
+    "status": "scheduled",
+    "note": "Frozen chicken, quarterly TEFAP allocation"
+  },
+  {
+    "id": "DON-Safeway-88",
+    "source": "Safeway DC Donation",
+    "type": "donation",
+    "category": "produce",
+    "lbs": 9000,
+    "eta": "2026-07-17T06:00:00",
+    "status": "scheduled",
+    "note": "Mixed produce, short shelf life"
+  },
+  {
+    "id": "PO-Sysco-231",
+    "source": "Sysco Purchase Order",
+    "type": "purchase",
+    "category": "dairy",
+    "lbs": 5000,
+    "eta": "2026-07-17T09:00:00",
+    "status": "scheduled",
+    "note": "Milk and yogurt"
+  },
+  {
+    "id": "DON-Grocers-14",
+    "source": "Regional Grocers Rescue",
+    "type": "donation",
+    "category": "shelf_stable",
+    "lbs": 12000,
+    "eta": "2026-07-17T08:00:00",
+    "status": "scheduled",
+    "note": "Canned goods, pasta"
+  }
+]

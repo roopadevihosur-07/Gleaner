@@ -1,0 +1,14 @@
+{
+  "on_hand_lbs": {
+    "produce": 22000,
+    "protein": 9000,
+    "dairy": 7000,
+    "shelf_stable": 48000
+  },
+  "safety_stock_lbs": {
+    "produce": 6000,
+    "protein": 3000,
+    "dairy": 2000,
+    "shelf_stable": 10000
+  }
+}

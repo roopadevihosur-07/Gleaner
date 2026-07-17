@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleaner — Disruption-to-Dispatch</title>
+<link href="https://fonts.googleapis.com/css2?family=Cera+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDemoKey123&libraries=maps,marker"></script>
+<style>
+  :root {
+    --color-void-black: #0e1012;
+    --color-deep-charcoal: #15171b;
+    --color-gunmetal: #1c1f24;
+    --color-graphite: #23262d;
+    --color-steel: #333943;
+    --color-pewter: #444d5a;
+    --color-slate: #566171;
+    --color-ash: #8b96aa;
+    --color-fog: #a0aaba;
+    --color-silver: #bbc2ce;
+    --color-cloud: #d5dae2;
+    --color-white: #ffffff;
+    --color-signal-blue: #007afc;
+    --color-deep-signal: #0062ca;
+    --color-map-green: #228a56;
+
+    --font-cera-pro: 'Cera Pro', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+
+    --text-display: 68px;
+    --text-heading-lg: 44px;
+    --text-heading: 32px;
+    --text-heading-sm: 24px;
+    --text-subheading: 18px;
+    --text-body: 16px;
+    --text-body-sm: 14px;
+    --text-caption: 10px;
+
+    --spacing-4: 4px;
+    --spacing-8: 8px;
+    --spacing-12: 12px;
+    --spacing-16: 16px;
+    --spacing-20: 20px;
+    --spacing-24: 24px;
+    --spacing-28: 28px;
+    --spacing-32: 32px;
+    --spacing-40: 40px;
+    --spacing-48: 48px;
+    --spacing-60: 60px;
+    --spacing-96: 96px;
+
+    --radius-badges: 4px;
+    --radius-inputs: 6px;
+    --radius-chips: 12px;
+    --radius-cards: 24px;
+    --radius-buttons: 100px;
+
+    --shadow-xl: rgb(14, 16, 18) 0px -175px 175px -75px inset;
+    --shadow-xl-2: rgb(14, 16, 18) 0px 0px 100px 50px;
+
+    --page-max-width: 1344px;
+    --section-gap: 96px;
+    --card-padding: 24px;
+    --element-gap: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-void-black);
+    color: var(--color-fog);
+    font-family: var(--font-cera-pro);
+    font-weight: var(--font-weight-regular);
+    font-size: var(--text-body);
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 { font-weight: var(--font-weight-bold); color: var(--color-white); }
+
+  .card {
+    background: var(--color-deep-charcoal);
+    border-radius: var(--radius-cards);
+    padding: var(--card-padding);
+    border: 1px solid var(--color-gunmetal);
+  }
+
+  .btn-primary {
+    background: var(--color-signal-blue);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-buttons);
+    padding: 12px 24px;
+    font-family: var(--font-cera-pro);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    font-size: var(--text-body-sm);
+    transition: background 0.2s ease;
+  }
+
+  .btn-primary:hover { background: #0062d9; opacity: 0.9; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--color-white);
+    border: 1px solid var(--color-silver);
+    border-radius: var(--radius-buttons);
+    padding: 12px 24px;
+    font-family: var(--font-cera-pro);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    font-size: var(--text-body-sm);
+    transition: border-color 0.2s ease;
+  }
+
+  .btn-outline:hover { border-color: var(--color-white); }
+
+  .badge {
+    display: inline-block;
+    background: var(--color-map-green);
+    color: var(--color-white);
+    border-radius: var(--radius-badges);
+    padding: 5.6px 7.7px;
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.84px;
+  }
+
+  .trace-item { opacity: 0; transform: translateY(6px); transition: all 0.4s ease; }
+  .trace-item.show { opacity: 1; transform: none; }
+
+  .pulse { animation: pulse-anim 1.4s ease-in-out infinite; }
+  @keyframes pulse-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  .route-line { fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke-dashoffset 1.2s ease; }
+
+  .eyebrow {
+    font-size: var(--text-caption);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.84px;
+    text-transform: uppercase;
+    color: var(--color-slate);
+  }
+
+  header {
+    background: var(--color-void-black);
+    border-bottom: 1px solid var(--color-gunmetal);
+    padding: var(--spacing-16) var(--spacing-24);
+    box-shadow: var(--shadow-xl-2);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  header .logo-text {
+    font-size: var(--text-heading-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-white);
+  }
+
+  header .logo-sub {
+    font-size: var(--text-caption);
+    color: var(--color-slate);
+    letter-spacing: 0.5px;
+  }
+
+  .issue-item {
+    background: var(--color-gunmetal);
+    border: 1px solid var(--color-steel);
+    border-radius: var(--radius-cards);
+    padding: var(--spacing-12);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .issue-item:hover {
+    border-color: var(--color-signal-blue);
+    background: var(--color-graphite);
+  }
+
+  .issue-item.critical {
+    border-left: 3px solid #ff4444;
+  }
+
+  .issue-item.high {
+    border-left: 3px solid var(--color-signal-blue);
+  }
+
+  .metric-card {
+    background: var(--color-gunmetal);
+    border: 1px solid var(--color-steel);
+    border-radius: var(--radius-cards);
+    padding: var(--spacing-16);
+    text-align: center;
+  }
+
+  .metric-value {
+    font-size: var(--text-heading);
+    font-weight: 700;
+    color: var(--color-signal-blue);
+    margin: var(--spacing-8) 0;
+  }
+
+  .metric-label {
+    font-size: var(--text-body-sm);
+    color: var(--color-ash);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .live-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #ff4444;
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+    margin-right: 6px;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 62px;
+    width: 320px;
+    height: calc(100vh - 62px);
+    background: var(--color-deep-charcoal);
+    border-right: 1px solid var(--color-gunmetal);
+    padding: var(--spacing-16);
+    overflow-y: auto;
+    z-index: 40;
+  }
+
+  .main-content {
+    margin-left: 320px;
+  }
+
+  .hidden { display: none !important; }
+
+  #map-container {
+    width: 100%;
+    height: 460px;
+    border-radius: var(--radius-cards);
+    overflow: hidden;
+    background: var(--color-gunmetal);
+  }
+
+  .gm-style-cc {
+    background-color: rgba(15, 16, 18, 0.9) !important;
+    color: #a0aaba !important;
+    font-family: var(--font-cera-pro) !important;
+  }
+
+  .gm-style .gm-style-mtc label {
+    background-color: rgba(15, 16, 18, 0.9) !important;
+    color: #a0aaba !important;
+    font-family: var(--font-cera-pro) !important;
+  }
+
+  .gm-style-cc button, .gm-style-cc a {
+    color: #007afc !important;
+  }
+
+  .gm-control-active .gm-style-mtc {
+    background-color: rgba(15, 16, 18, 0.9) !important;
+  }
+
+  .map-marker-info {
+    background: var(--color-deep-charcoal) !important;
+    border: 1px solid var(--color-signal-blue) !important;
+    border-radius: var(--radius-cards) !important;
+    padding: var(--spacing-12) !important;
+    font-family: var(--font-cera-pro) !important;
+  }
+
+  .map-marker-info h3 {
+    font-size: var(--text-body);
+    font-weight: 700;
+    color: var(--color-white);
+    margin: 0 0 var(--spacing-4) 0;
+  }
+
+  .map-marker-info p {
+    font-size: var(--text-body-sm);
+    color: var(--color-fog);
+    margin: 0;
+  }
+
+  #map-toggle-container {
+    display: flex;
+    gap: var(--spacing-8);
+    margin-top: var(--spacing-12);
+  }
+
+  .map-view-btn {
+    flex: 1;
+    padding: var(--spacing-8) var(--spacing-12);
+    border-radius: var(--radius-buttons);
+    border: 1px solid var(--color-silver);
+    background: transparent;
+    color: var(--color-fog);
+    cursor: pointer;
+    font-size: var(--text-body-sm);
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .map-view-btn.active {
+    background: var(--color-signal-blue);
+    color: var(--color-white);
+    border-color: var(--color-signal-blue);
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header>
+  <div class="flex items-center gap-4 justify-between">
+    <a href="/" style="display: flex; align-items: center; gap: var(--spacing-8); text-decoration: none;">
+      <div style="width: 44px; height: 44px; display: grid; place-items: center; background: var(--color-graphite); border-radius: var(--radius-inputs); font-size: 18px; font-weight: 700;">🌾</div>
+      <div>
+        <div class="logo-text">Gleaner</div>
+        <div class="logo-sub">Disruption-to-dispatch agent</div>
+      </div>
+    </a>
+    <div id="engine" style="font-size: var(--text-caption); padding: 6px 12px; border-radius: var(--radius-buttons); background: var(--color-graphite); color: var(--color-fog);">engine: …</div>
+  </div>
+</header>
+
+<!-- LEFT SIDEBAR: Live Issues Feed -->
+<aside class="sidebar">
+  <div style="display: flex; align-items: center; gap: var(--spacing-8); margin-bottom: var(--spacing-16);">
+    <div class="live-indicator"></div>
+    <h3 style="font-size: var(--text-heading-sm); font-weight: 700; color: var(--color-white);">Live Issues</h3>
+  </div>
+
+  <!-- Metrics Dashboard -->
+  <div style="display: flex; flex-direction: column; gap: var(--spacing-12); margin-bottom: var(--spacing-24);">
+    <div class="metric-card">
+      <div class="metric-label">Active Issues</div>
+      <div class="metric-value" id="metric-active">0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Total Disruptions</div>
+      <div class="metric-value" id="metric-total">0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Meals Protected</div>
+      <div class="metric-value" id="metric-meals">0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Cost Saved</div>
+      <div class="metric-value" id="metric-cost">$0</div>
+    </div>
+  </div>
+
+  <div class="eyebrow" style="margin-bottom: var(--spacing-12);">Recent Issues</div>
+  <div id="issues-feed" style="display: flex; flex-direction: column; gap: var(--spacing-8);">
+    <div style="text-align: center; color: var(--color-slate); padding: var(--spacing-12);">No active issues</div>
+  </div>
+
+  <button id="simulate-btn" class="btn-primary" style="width: 100%; margin-top: var(--spacing-16);">Simulate Issue</button>
+</aside>
+
+<main class="main-content" style="max-width: var(--page-max-width); padding: var(--spacing-24); display: grid; grid-template-columns: 1fr 1.5fr 1.2fr; gap: var(--spacing-24);">
+
+  <!-- LEFT: inbound loads -->
+  <section style="display: flex; flex-direction: column; gap: var(--spacing-16);">
+    <div class="eyebrow">Inbound loads</div>
+    <div id="commitments" style="display: flex; flex-direction: column; gap: var(--spacing-12);"></div>
+    <p style="font-size: var(--text-body-sm); color: var(--color-ash); line-height: 1.6;">Cut a load to simulate a real supply shock (e.g. a TEFAP allocation pulled). Gleaner senses it and rebuilds the day.</p>
+  </section>
+
+  <!-- CENTER: map -->
+  <section>
+    <div class="card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-12);">
+        <h2 style="font-size: var(--text-heading-sm); font-weight: var(--font-weight-bold); text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-white);">Delivery map</h2>
+        <div id="routeToggle" class="hidden" style="display: flex; gap: var(--spacing-8); font-size: var(--text-body-sm);">
+          <button id="showBase" class="btn-outline" style="padding: 8px 16px; font-size: var(--text-body-sm);">Naive</button>
+          <button id="showOpt" class="btn-primary" style="padding: 8px 16px; font-size: var(--text-body-sm);">Gleaner</button>
+        </div>
+      </div>
+      <div id="map-container" style="width: 100%; height: 460px; background: var(--color-gunmetal); border-radius: var(--radius-cards);"></div>
+
+      <div id="map-toggle-container" style="display: flex; gap: var(--spacing-8); margin-top: var(--spacing-12);">
+        <button class="map-view-btn active" id="map-view-google" style="flex: 1;">🗺️ Google Maps</button>
+        <button class="map-view-btn" id="map-view-svg" style="flex: 1;">📍 SVG View</button>
+      </div>
+
+      <svg id="map-svg" viewBox="0 0 520 460" style="width: 100%; height: auto; display: none; margin-top: var(--spacing-12);"></svg>
+      <div id="routeStat" class="hidden" style="font-size: var(--text-body-sm); color: var(--color-fog); margin-top: var(--spacing-12); padding-top: var(--spacing-12); border-top: 1px solid var(--color-gunmetal);"></div>
+    </div>
+  </section>
+
+  <!-- RIGHT: agent trace + impact -->
+  <section style="display: flex; flex-direction: column; gap: var(--spacing-16);">
+    <div id="impact" class="hidden card" style="text-align: center;">
+      <div class="eyebrow" style="margin-bottom: var(--spacing-8);">Meals protected</div>
+      <div id="meals" style="font-size: 56px; font-weight: 700; color: var(--color-signal-blue); line-height: 1;">0</div>
+      <div id="impactSub" style="font-size: var(--text-body-sm); color: var(--color-ash); margin-top: var(--spacing-8);"></div>
+      <div id="breakdown" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-8); margin-top: var(--spacing-12); text-align: left;"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size: var(--text-heading-sm); font-weight: var(--font-weight-bold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--spacing-12); color: var(--color-white);">Agent activity</h3>
+      <div id="trace" style="display: flex; flex-direction: column; gap: var(--spacing-8); font-size: var(--text-body-sm); color: var(--color-fog);">Idle — waiting for a disruption.</div>
+    </div>
+
+    <div id="recBox" class="hidden card" style="border-left: 3px solid var(--color-signal-blue);">
+      <div class="eyebrow" style="margin-bottom: var(--spacing-8);">Recommendation</div>
+      <div id="rec" style="font-size: var(--text-body); color: var(--color-fog); margin-bottom: var(--spacing-12);"></div>
+      <button id="approve" class="btn-primary" style="width: 100%;">Approve plan</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const API = location.origin;
+let STATE=null, LAST=null, routeMode="opt";
+
+async function boot(){
+  const h = await (await fetch(`${API}/api/health`)).json();
+  document.getElementById("engine").textContent = "engine: " + h.engine;
+  STATE = await (await fetch(`${API}/api/state`)).json();
+  renderCommitments();
+  drawMap();
+}
+
+function renderCommitments(){
+  const el = document.getElementById("commitments");
+  el.innerHTML = STATE.commitments.map(c=>`
+    <div class="card" style="padding: var(--spacing-12);">
+      <div style="display: flex; justify-content: space-between; align-items: start; gap: var(--spacing-8); margin-bottom: var(--spacing-12);">
+        <div>
+          <div style="font-size: var(--text-body); font-weight: 700; color: var(--color-white);">${c.source}</div>
+          <div style="font-size: var(--text-body-sm); color: var(--color-ash);">${c.category} · ${c.lbs.toLocaleString()} lbs · ${c.type}</div>
+        </div>
+        <span class="badge" style="background: var(--color-deep-signal); font-size: var(--text-caption);">${c.id}</span>
+      </div>
+      <button data-id="${c.id}" class="cut btn-primary" style="width: 100%; font-size: var(--text-body-sm);">Cut load</button>
+    </div>`).join("");
+  document.querySelectorAll(".cut").forEach(b=>b.onclick=()=>disrupt(b.dataset.id));
+}
+
+// ---- Google Maps Integration ----
+let googleMap = null;
+let markers = [];
+let polylines = [];
+let currentMapView = "google";
+
+async function initGoogleMap() {
+  // Wait for Google Maps API to load
+  if (typeof google === "undefined") {
+    setTimeout(initGoogleMap, 500);
+    return;
+  }
+
+  if (!STATE || !STATE.depot) return;
+
+  const mapOptions = {
+    zoom: 12,
+    center: { lat: STATE.depot.lat, lng: STATE.depot.lng },
+    mapTypeControl: true,
+    fullscreenControl: true,
+    streetViewControl: false,
+    zoomControl: true,
+    styles: [
+      { elementType: "geometry", stylers: [{ color: "#1c1f24" }] },
+      { elementType: "labels.text.stroke", stylers: [{ color: "#1c1f24" }] },
+      { elementType: "labels.text.fill", stylers: [{ color: "#a0aaba" }] },
+      { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#a0aaba" }] },
+      { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#8b96aa" }] },
+      { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#23262d" }] },
+      { featureType: "road", elementType: "geometry", stylers: [{ color: "#15171b" }] },
+      { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#333943" }] },
+      { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#007afc" } ] },
+      { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1012" }] }
+    ]
+  };
+
+  googleMap = new google.maps.Map(document.getElementById("map-container"), mapOptions);
+
+  // Add depot marker
+  const depotMarker = new google.maps.Marker({
+    position: { lat: STATE.depot.lat, lng: STATE.depot.lng },
+    map: googleMap,
+    title: "Depot",
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 10,
+      fillColor: "#007afc",
+      fillOpacity: 1,
+      strokeColor: "#ffffff",
+      strokeWeight: 2
+    }
+  });
+
+  const depotInfo = new google.maps.InfoWindow({
+    content: `<div class="map-marker-info"><h3>Depot</h3><p>${STATE.depot.name}</p><p>Lat: ${STATE.depot.lat.toFixed(4)}, Lng: ${STATE.depot.lng.toFixed(4)}</p></div>`
+  });
+
+  depotMarker.addListener("click", () => { depotInfo.open(googleMap, depotMarker); });
+  markers.push(depotMarker);
+
+  // Add agency markers
+  STATE.agencies.forEach((agency, idx) => {
+    const agencyMarker = new google.maps.Marker({
+      position: { lat: agency.lat, lng: agency.lng },
+      map: googleMap,
+      title: agency.name,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: "#228a56",
+        fillOpacity: 0.8,
+        strokeColor: "#ffffff",
+        strokeWeight: 1
+      },
+      label: { text: (idx + 1).toString(), color: "#ffffff", fontSize: "12px", fontWeight: "bold" }
+    });
+
+    const agencyInfo = new google.maps.InfoWindow({
+      content: `<div class="map-marker-info"><h3>${agency.name}</h3><p>Window: ${agency.window_close}:00</p><p>Lat: ${agency.lat.toFixed(4)}, Lng: ${agency.lng.toFixed(4)}</p></div>`
+    });
+
+    agencyMarker.addListener("click", () => { agencyInfo.open(googleMap, agencyMarker); });
+    markers.push(agencyMarker);
+  });
+}
+
+function drawMapRoute(order) {
+  if (!STATE || !googleMap) return;
+
+  // Clear existing polylines
+  polylines.forEach(poly => poly.setMap(null));
+  polylines = [];
+
+  if (!order) return;
+
+  const routeCoords = [
+    { lat: STATE.depot.lat, lng: STATE.depot.lng },
+    ...order.map(agencyId => STATE.agencies.find(a => a.id === agencyId)).filter(Boolean),
+    { lat: STATE.depot.lat, lng: STATE.depot.lng }
+  ];
+
+  const polylineColor = routeMode === "opt" ? "#007afc" : "#566171";
+  const polyline = new google.maps.Polyline({
+    path: routeCoords,
+    geodesic: true,
+    strokeColor: polylineColor,
+    strokeOpacity: 0.8,
+    strokeWeight: 3,
+    map: googleMap,
+    icons: [{
+      icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW, scale: 2, strokeColor: polylineColor },
+      offset: "50%"
+    }]
+  });
+
+  polylines.push(polyline);
+
+  // Fit bounds
+  const bounds = new google.maps.LatLngBounds();
+  routeCoords.forEach(point => bounds.extend(new google.maps.LatLng(point.lat, point.lng)));
+  googleMap.fitBounds(bounds, 50);
+}
+
+// ---- SVG map projection (fallback) ----
+function proj(){
+  const pts=[STATE.depot,...STATE.agencies];
+  const lats=pts.map(p=>p.lat), lngs=pts.map(p=>p.lng);
+  const minLa=Math.min(...lats),maxLa=Math.max(...lats),minLn=Math.min(...lngs),maxLn=Math.max(...lngs);
+  const pad=40,W=520,H=460;
+  return (lat,lng)=>[
+    pad+(lng-minLn)/(maxLn-minLn||1)*(W-2*pad),
+    pad+(maxLa-lat)/(maxLa-minLa||1)*(H-2*pad)
+  ];
+}
+
+function drawMapSVG(order){
+  const P=proj(), svg=document.getElementById("map-svg");
+  let s="";
+  if(order){
+    const seq=[STATE.depot,...order,STATE.depot];
+    const d=seq.map((p,i)=>{const[x,y]=P(p.lat,p.lng);return (i?"L":"M")+x+" "+y;}).join(" ");
+    const col = routeMode==="opt" ? "#007afc" : "#566171";
+    s+=`<path class="route-line" d="${d}" stroke="${col}" stroke-width="2.5" stroke-dasharray="1200" stroke-dashoffset="1200"/>`;
+  }
+  STATE.agencies.forEach(a=>{const[x,y]=P(a.lat,a.lng);
+    s+=`<circle cx="${x}" cy="${y}" r="6" fill="#228a56"/>
+        <text x="${x+9}" y="${y+3}" font-size="9" fill="#a0aaba">${a.name.split(" ")[0]}</text>
+        <text x="${x+9}" y="${y+13}" font-size="8" fill="#566171">win →${a.window_close}:00</text>`;});
+  const[dx,dy]=P(STATE.depot.lat,STATE.depot.lng);
+  s+=`<rect x="${dx-6}" y="${dy-6}" width="12" height="12" fill="#007afc" transform="rotate(45 ${dx} ${dy})"/>
+      <text x="${dx+10}" y="${dy+3}" font-size="9" font-weight="600" fill="#007afc">Depot</text>`;
+  svg.innerHTML=s;
+  requestAnimationFrame(()=>{const p=svg.querySelector(".route-line"); if(p)p.style.strokeDashoffset=0;});
+}
+
+function drawMap(order) {
+  if (currentMapView === "google") {
+    if (!googleMap) initGoogleMap();
+    drawMapRoute(order);
+  } else {
+    drawMapSVG(order);
+  }
+}
+
+// ---- run a disruption ----
+async function disrupt(id){
+  const trace=document.getElementById("trace");
+  trace.innerHTML=`<div class="pulse">Sensing disruption on ${id}…</div>`;
+  ["impact","recBox","routeToggle","routeStat"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  const res=await (await fetch(`${API}/api/disrupt`,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({commitment_id:id})})).json();
+  LAST=res;
+  await animateTrace(res.trace);
+  showResult(res);
+}
+
+function icon(step){
+  return {sense:"◎",gap:"▤",fill:"$",route:"⟿",human:"✓",reason:"✦"}[step]||"•";
+}
+async function animateTrace(steps){
+  const trace=document.getElementById("trace"); trace.innerHTML="";
+  for(const s of steps){
+    if(!s.detail && s.step!=="human") continue;
+    const div=document.createElement("div");
+    div.className="trace-item";
+    div.style.display="flex";
+    div.style.gap="var(--spacing-8)";
+    div.innerHTML=`<span style="font-weight: 700; color: var(--color-signal-blue); font-size: var(--text-body-sm);">${icon(s.step)}</span>
+      <div><div style="font-weight: 500; color: var(--color-white); font-size: var(--text-body-sm);">${s.title}</div>
+      <div style="font-size: var(--text-body-sm); color: var(--color-ash);">${s.detail||""}</div></div>`;
+    trace.appendChild(div);
+    await new Promise(r=>setTimeout(r,650));
+    div.classList.add("show");
+  }
+}
+
+function showResult(res){
+  const s=res.summary, r=res.routing;
+  document.getElementById("impact").classList.remove("hidden");
+  const meals=document.getElementById("meals");
+  let n=0; const target=s.total_meals, step=Math.max(1,Math.round(target/40));
+  const t=setInterval(()=>{n=Math.min(target,n+step);meals.textContent=n.toLocaleString();if(n>=target)clearInterval(t);},20);
+  document.getElementById("impactSub").textContent =
+    `${s.meals_at_risk.toLocaleString()} meals were at risk · ${s.coverage_pct}% of the gap covered`;
+  const b=s.components;
+  document.getElementById("breakdown").innerHTML=[
+    ["Gap covered",`${b.gap_covered.toLocaleString()} meals`],
+    ["Spoilage avoided",`${b.spoilage_avoided.toLocaleString()} meals`],
+    ["Dollars saved",`$${s.dollars_saved.toLocaleString()}`],
+    ["Meals that funds",`${s.meals_fundable.toLocaleString()} meals`]
+  ].map(([k,v])=>`<div style="background: var(--color-gunmetal); border-radius: var(--radius-inputs); padding: var(--spacing-8); border: 1px solid var(--color-gunmetal);"><span style="color: var(--color-ash); font-size: var(--text-body-sm);">${k}</span>
+     <div style="font-weight: 700; color: var(--color-signal-blue); margin-top: var(--spacing-4);">${v}</div></div>`).join("");
+
+  document.getElementById("rec").textContent=res.recommendation;
+  document.getElementById("recBox").classList.remove("hidden");
+  document.getElementById("approve").onclick=()=>{
+    document.getElementById("approve").textContent="✓ Approved — dispatched to drivers";
+    document.getElementById("approve").style.background="#228a56";
+  };
+
+  // route toggle + draw optimized
+  document.getElementById("routeToggle").classList.remove("hidden");
+  document.getElementById("routeStat").classList.remove("hidden");
+  const stat=document.getElementById("routeStat");
+  const setStat=()=>{const o=routeMode==="opt"?r.optimized:r.baseline;
+    stat.innerHTML=`<b style="color: var(--color-white);">${routeMode==="opt"?"Gleaner plan":"Naive dispatch"}:</b> ${o.miles} mi · $${o.fuel_cost.toLocaleString()} fuel · ${o.spoiled_lbs.toLocaleString()} lbs spoiled`;};
+  const draw=m=>{routeMode=m;drawMap((m==="opt"?r.optimized:r.baseline).order);setStat();
+    document.getElementById("showOpt").style.opacity=m==="opt"?1:.6;
+    document.getElementById("showBase").style.opacity=m==="base"?1:.6;};
+  document.getElementById("showOpt").onclick=()=>draw("opt");
+  document.getElementById("showBase").onclick=()=>draw("base");
+  draw("opt");
+}
+
+// ---- Live Issues & WebSocket ----
+let liveIssues = [];
+let ws = null;
+
+function updateMetrics(metrics) {
+  document.getElementById("metric-active").textContent = metrics.active_issues || 0;
+  document.getElementById("metric-total").textContent = metrics.total_disruptions || 0;
+  document.getElementById("metric-meals").textContent = (metrics.total_meals_protected || 0).toLocaleString();
+  document.getElementById("metric-cost").textContent = "$" + (metrics.total_cost_saved || 0).toLocaleString();
+}
+
+function renderIssueFeed() {
+  const feed = document.getElementById("issues-feed");
+  const activeIssues = liveIssues.filter(i => i.status === "detected");
+
+  if (activeIssues.length === 0) {
+    feed.innerHTML = '<div style="text-align: center; color: var(--color-slate); padding: var(--spacing-12);">No active issues</div>';
+    return;
+  }
+
+  feed.innerHTML = activeIssues.map(issue => `
+    <div class="issue-item ${issue.severity}" onclick="disrupt('${issue.commitment_id}')">
+      <div style="font-weight: 700; color: var(--color-white); margin-bottom: var(--spacing-4);">${issue.source}</div>
+      <div style="font-size: var(--text-body-sm); color: var(--color-ash); margin-bottom: var(--spacing-4);">
+        ${issue.category} · ${issue.shortfall_lbs.toLocaleString()} lbs
+      </div>
+      <div style="font-size: var(--text-caption); color: var(--color-signal-blue);">${issue.message}</div>
+      <div style="font-size: var(--text-caption); color: var(--color-slate); margin-top: var(--spacing-4);">
+        ${new Date(issue.timestamp).toLocaleTimeString()}
+      </div>
+    </div>
+  `).join("");
+}
+
+function connectWebSocket() {
+  const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  ws = new WebSocket(`${protocol}//${location.host}/ws/live-issues`);
+
+  ws.onopen = () => {
+    console.log("WebSocket connected");
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    if (data.type === "initial") {
+      liveIssues = data.issues || [];
+      updateMetrics(data.metrics || {});
+      renderIssueFeed();
+    } else if (data.type === "new_issue") {
+      liveIssues.push(data.issue);
+      updateMetrics(data.metrics || {});
+      renderIssueFeed();
+
+      // Auto-trigger disruption planning for high/critical severity
+      if (["high", "critical"].includes(data.issue.severity)) {
+        setTimeout(() => {
+          disrupt(data.issue.commitment_id);
+        }, 500);
+      }
+    }
+  };
+
+  ws.onerror = (error) => {
+    console.error("WebSocket error:", error);
+    setTimeout(connectWebSocket, 3000);
+  };
+
+  ws.onclose = () => {
+    console.log("WebSocket disconnected");
+    setTimeout(connectWebSocket, 3000);
+  };
+}
+
+// Simulate issue button
+document.getElementById("simulate-btn").onclick = async () => {
+  const res = await fetch(`${API}/api/live/simulate-issue`, { method: "POST" });
+  const issue = await res.json();
+  if (issue.id) {
+    liveIssues.push(issue);
+    renderIssueFeed();
+    // Fetch updated metrics
+    const metricsRes = await fetch(`${API}/api/live/issues`);
+    const data = await metricsRes.json();
+    updateMetrics(data.metrics || {});
+  }
+};
+
+// ---- Map View Toggle ----
+document.getElementById("map-view-google").onclick = () => {
+  currentMapView = "google";
+  document.getElementById("map-container").style.display = "block";
+  document.getElementById("map-svg").style.display = "none";
+  document.getElementById("map-view-google").classList.add("active");
+  document.getElementById("map-view-svg").classList.remove("active");
+  if (!googleMap) initGoogleMap();
+  drawMap(LAST ? (routeMode === "opt" ? LAST.routing.optimized.order : LAST.routing.baseline.order) : null);
+};
+
+document.getElementById("map-view-svg").onclick = () => {
+  currentMapView = "svg";
+  document.getElementById("map-container").style.display = "none";
+  document.getElementById("map-svg").style.display = "block";
+  document.getElementById("map-view-svg").classList.add("active");
+  document.getElementById("map-view-google").classList.remove("active");
+  drawMap(LAST ? (routeMode === "opt" ? LAST.routing.optimized.order : LAST.routing.baseline.order) : null);
+};
+
+// Initialize
+boot();
+setTimeout(() => initGoogleMap(), 1000);
+connectWebSocket();
+</script>
+</body>
+</html>

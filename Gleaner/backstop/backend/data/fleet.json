@@ -1,0 +1,11 @@
+{
+  "depot": { "name": "ACCFB Warehouse (Oakland)", "lat": 37.7360, "lng": -122.1990 },
+  "trucks": [
+    { "id": "T1", "refrigerated": true,  "capacity_lbs": 14000, "fuel_cost_per_mile": 0.68, "driver": "Marcus" },
+    { "id": "T2", "refrigerated": true,  "capacity_lbs": 12000, "fuel_cost_per_mile": 0.64, "driver": "Priya" },
+    { "id": "T3", "refrigerated": false, "capacity_lbs": 12000, "fuel_cost_per_mile": 0.60, "driver": "Dee" }
+  ],
+  "depart_hour": 8.0,
+  "avg_speed_mph": 24.0,
+  "service_minutes_per_stop": 20.0
+}

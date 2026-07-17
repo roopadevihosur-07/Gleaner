@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleaner — System Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Cera+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-void-black: #0e1012;
+    --color-deep-charcoal: #15171b;
+    --color-gunmetal: #1c1f24;
+    --color-graphite: #23262d;
+    --color-steel: #333943;
+    --color-pewter: #444d5a;
+    --color-slate: #566171;
+    --color-ash: #8b96aa;
+    --color-fog: #a0aaba;
+    --color-silver: #bbc2ce;
+    --color-cloud: #d5dae2;
+    --color-white: #ffffff;
+    --color-signal-blue: #007afc;
+    --color-deep-signal: #0062ca;
+    --color-map-green: #228a56;
+
+    --font-cera-pro: 'Cera Pro', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--color-void-black);
+    color: var(--color-fog);
+    font-family: var(--font-cera-pro);
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--color-void-black);
+    border-bottom: 1px solid var(--color-gunmetal);
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 0 100px 50px rgba(14, 16, 18, 0.5);
+  }
+
+  .header-content {
+    max-width: 1344px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-white);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+  }
+
+  .nav-links a {
+    color: var(--color-fog);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--color-signal-blue);
+  }
+
+  .container {
+    max-width: 1344px;
+    margin: 0 auto;
+    padding: 96px 24px;
+  }
+
+  h1 {
+    font-size: 44px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--color-white);
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--color-ash);
+    max-width: 800px;
+    margin-bottom: 60px;
+  }
+
+  /* Timeline / Flow */
+  .flow-timeline {
+    position: relative;
+    margin: 60px 0;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 80px;
+    position: relative;
+  }
+
+  .timeline-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 30px;
+    top: 120px;
+    width: 2px;
+    height: 120px;
+    background: linear-gradient(to bottom, var(--color-signal-blue), transparent);
+  }
+
+  .timeline-number {
+    width: 60px;
+    height: 60px;
+    background: var(--color-signal-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-white);
+    flex-shrink: 0;
+    box-shadow: 0 0 30px rgba(0, 122, 252, 0.3);
+  }
+
+  .timeline-content {
+    flex: 1;
+    padding-top: 8px;
+  }
+
+  .timeline-content h3 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: var(--color-white);
+  }
+
+  .timeline-content p {
+    font-size: 16px;
+    color: var(--color-fog);
+    margin-bottom: 20px;
+    line-height: 1.8;
+  }
+
+  .timeline-box {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: 16px;
+    padding: 24px;
+    margin-top: 16px;
+  }
+
+  .agent-label {
+    display: inline-block;
+    background: var(--color-deep-signal);
+    color: var(--color-white);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.84px;
+    margin-bottom: 12px;
+  }
+
+  .agent-description {
+    background: var(--color-graphite);
+    border-left: 3px solid var(--color-signal-blue);
+    padding: 16px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  /* System Architecture Diagram */
+  .architecture {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: 24px;
+    padding: 40px;
+    margin: 60px 0;
+  }
+
+  .architecture h2 {
+    font-size: 28px;
+    margin-bottom: 32px;
+    color: var(--color-white);
+  }
+
+  .arch-diagram {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .arch-layer {
+    background: var(--color-gunmetal);
+    border: 1px solid var(--color-steel);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .arch-layer-title {
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.84px;
+    color: var(--color-signal-blue);
+    margin-bottom: 16px;
+  }
+
+  .arch-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+  }
+
+  .arch-item {
+    background: var(--color-graphite);
+    border: 1px solid var(--color-steel);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 14px;
+  }
+
+  .arch-item-title {
+    font-weight: 700;
+    color: var(--color-white);
+    margin-bottom: 8px;
+  }
+
+  .arch-item-desc {
+    font-size: 13px;
+    color: var(--color-ash);
+  }
+
+  /* Data Flow */
+  .data-flow {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: 24px;
+    padding: 40px;
+    margin: 60px 0;
+  }
+
+  .flow-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+    margin-top: 48px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .flow-item {
+    background: var(--color-gunmetal);
+    border: 2px solid var(--color-signal-blue);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    font-size: 13px;
+    flex: 1;
+    min-width: 140px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .flow-item strong {
+    display: block;
+    font-size: 14px;
+    color: var(--color-white);
+    margin-bottom: 8px;
+  }
+
+  .flow-item.data {
+    border-color: var(--color-map-green);
+    background: rgba(34, 138, 86, 0.1);
+  }
+
+  .flow-arrow {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-signal-blue);
+    font-size: 24px;
+    font-weight: 700;
+    width: 40px;
+    height: 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Horizontal line behind flow */
+  .flow-box::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--color-signal-blue), var(--color-signal-blue), transparent);
+    z-index: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .flow-box {
+      gap: 16px;
+    }
+    .flow-item {
+      min-width: 120px;
+      padding: 16px 12px;
+      font-size: 12px;
+    }
+    .flow-arrow {
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+    }
+  }
+
+  /* Tool Details */
+  .tools-section {
+    margin: 60px 0;
+  }
+
+  .tool-card {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  .tool-card h3 {
+    font-size: 20px;
+    color: var(--color-white);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tool-icon {
+    font-size: 28px;
+  }
+
+  .tool-desc {
+    color: var(--color-fog);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  .tool-input, .tool-output {
+    background: var(--color-gunmetal);
+    border: 1px solid var(--color-steel);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+
+  .tool-input::before {
+    content: "INPUT: ";
+    font-weight: 700;
+    color: var(--color-signal-blue);
+  }
+
+  .tool-output::before {
+    content: "OUTPUT: ";
+    font-weight: 700;
+    color: var(--color-map-green);
+  }
+
+  /* Key Points */
+  .key-points {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .point-card {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .point-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+
+  .point-card h4 {
+    font-size: 16px;
+    color: var(--color-white);
+    margin-bottom: 8px;
+  }
+
+  .point-card p {
+    font-size: 14px;
+    color: var(--color-ash);
+    line-height: 1.6;
+  }
+
+  footer {
+    background: var(--color-deep-charcoal);
+    border-top: 1px solid var(--color-gunmetal);
+    padding: 40px 24px;
+    margin-top: 96px;
+    text-align: center;
+    color: var(--color-slate);
+    font-size: 12px;
+  }
+
+  /* Animated Flow Diagram */
+  .flow-diagram {
+    background: var(--color-deep-charcoal);
+    border: 1px solid var(--color-gunmetal);
+    border-radius: 24px;
+    padding: 60px 40px;
+    margin: 60px 0;
+  }
+
+  .flow-svg-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--color-gunmetal);
+    border-radius: 16px;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .flow-svg {
+    width: 100%;
+    height: auto;
+  }
+
+  .flow-step-box {
+    animation: slideIn 0.8s ease-out forwards;
+  }
+
+  .flow-step-box:nth-child(1) { animation-delay: 0s; }
+  .flow-step-box:nth-child(2) { animation-delay: 0.2s; }
+  .flow-step-box:nth-child(3) { animation-delay: 0.4s; }
+  .flow-step-box:nth-child(4) { animation-delay: 0.6s; }
+  .flow-step-box:nth-child(5) { animation-delay: 0.8s; }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .flow-arrow-line {
+    stroke: var(--color-signal-blue);
+    stroke-width: 3;
+    fill: none;
+    opacity: 0.6;
+  }
+
+  .flow-arrow-head {
+    fill: var(--color-signal-blue);
+    opacity: 0.8;
+  }
+
+  .flow-connector-circle {
+    fill: var(--color-signal-blue);
+    opacity: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { r: 3; opacity: 0; }
+    50% { r: 6; opacity: 0.6; }
+  }
+
+  .flow-node {
+    animation: floatIn 1s ease-out;
+  }
+
+  @keyframes floatIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .flow-icon {
+    font-size: 32px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  .flow-icon:nth-child(1) { animation-delay: 0s; }
+  .flow-icon:nth-child(2) { animation-delay: 0.3s; }
+  .flow-icon:nth-child(3) { animation-delay: 0.6s; }
+  .flow-icon:nth-child(4) { animation-delay: 0.9s; }
+  .flow-icon:nth-child(5) { animation-delay: 1.2s; }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .flow-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-white);
+    text-align: center;
+  }
+
+  .flow-sublabel {
+    font-size: 11px;
+    color: var(--color-ash);
+    margin-top: 4px;
+  }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 32px; }
+    .flow-diagram { padding: 40px 20px; }
+    .flow-svg-container { padding: 20px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="logo">
+      <span>🌾</span>
+      <span>Gleaner</span>
+    </div>
+    <nav class="nav-links">
+      <a href="/">Home</a>
+      <a href="/app">Launch App</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+
+<h1>System Architecture & Agent Flow</h1>
+<p class="subtitle">How Gleaner orchestrates supply chain disruptions using AI agents and specialized tools, coordinating procurement and distribution in one unified loop.</p>
+
+<!-- Main Flow Timeline -->
+<section class="flow-timeline">
+  <div class="timeline-item">
+    <div class="timeline-number">1</div>
+    <div class="timeline-content">
+      <h3>🔔 Issue Detection</h3>
+      <p>A supply disruption is detected through multiple channels: real-time monitoring, human alerts, or GPS tracking systems flagging delays.</p>
+      <div class="timeline-box">
+        <div class="agent-label">Live Issues Watcher (Backend)</div>
+        <p style="margin: 0; color: var(--color-fog);">Monitors supply chain signals: load cuts, delayed shipments, allocation changes, vehicle breakdowns. Triggers the orchestrator.</p>
+        <div class="agent-description">
+          <strong>Input:</strong> Real-time signals from maps, tracking systems, supply alerts<br>
+          <strong>Output:</strong> Disruption event → triggers Gleaner orchestrator<br>
+          <strong>Role:</strong> Listens 24/7, no analysis (just detection)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-number">2</div>
+    <div class="timeline-content">
+      <h3>🧠 Orchestrator Agent (Claude AI)</h3>
+      <p>Claude AI wakes up and takes control. It doesn't do math itself—it decides what questions to ask and what tools to call in the right sequence.</p>
+      <div class="timeline-box">
+        <div class="agent-label">Claude Orchestrator</div>
+        <p style="margin: 0; color: var(--color-fog);">The decision-maker. Reads the disruption, thinks about the problem, and decides which tools to call in what order.</p>
+        <div class="agent-description">
+          <strong>Reasoning:</strong> "A TEFAP load got cut. I need to: (1) understand the gap, (2) find vendors, (3) replan routes."<br>
+          <strong>Strategy:</strong> Size gap first → then find fill → then replan<br>
+          <strong>Output:</strong> Tool calls in sequence, narration of reasoning
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-number">3</div>
+    <div class="timeline-content">
+      <h3>▤ Gap Analysis Tool</h3>
+      <p>Answers: "How much food is missing? Which agencies lose access? How many meals are at risk?"</p>
+      <div class="timeline-box">
+        <div class="agent-label">Tool: size_gap()</div>
+        <p style="margin: 0; color: var(--color-fog);">Pure deterministic math. Reads commitment data, inventory, agency allocations. Outputs auditable numbers.</p>
+        <div class="agent-description">
+          <strong>Input:</strong> Commitment ID (which load was cut)<br>
+          <strong>Logic:</strong> Inventory check → On-hand stock + scheduled inbound − demand − other commitments = gap<br>
+          <strong>Output:</strong> {shortfall_lbs: 11300, affected_agencies: 7, meals_at_risk: 9417}<br>
+          <strong>Key Point:</strong> NOT hallucinated. Based on real data in `inventory.json` and `commitments.json`
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-number">4</div>
+    <div class="timeline-content">
+      <h3>$ Procurement Agent</h3>
+      <p>Answers: "Where do we buy replacement food? What's the cheapest reliable option? Can they deliver in time?"</p>
+      <div class="timeline-box">
+        <div class="agent-label">Tool: find_fill()</div>
+        <p style="margin: 0; color: var(--color-fog);">Searches vendor catalog, checks lead times, calculates cost premium vs. normal procurement.</p>
+        <div class="agent-description">
+          <strong>Input:</strong> {category: "protein", shortfall_lbs: 11300, time_window: 4 hours}<br>
+          <strong>Logic:</strong> For each vendor:<br>
+          &nbsp;&nbsp;• Check if they stock the category<br>
+          &nbsp;&nbsp;• Verify lead time < available time<br>
+          &nbsp;&nbsp;• Rank by price + reliability score<br>
+          <strong>Output:</strong> {vendor: "Sysco", price_per_lb: 200, lead_time: 2hr, premium_avoided: $9800}<br>
+          <strong>Key Point:</strong> Avoids panic pricing. Finds reliable option at market rate.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-number">5</div>
+    <div class="timeline-content">
+      <h3>⟿ Routing Optimizer</h3>
+      <p>Answers: "How do we deliver the replacement food + adjust existing routes to prevent spoilage?"</p>
+      <div class="timeline-box">
+        <div class="agent-label">Tool: replan_routes()</div>
+        <p style="margin: 0; color: var(--color-fog);">Takes current route, inserts new vendor pickup, re-sequences stops for access windows and perishability.</p>
+        <div class="agent-description">
+          <strong>Input:</strong> {new_load: vendor_location, agencies, vehicle_fleet, perishability}<br>
+          <strong>Logic:</strong>
+          &nbsp;&nbsp;• Add vendor to start of route<br>
+          &nbsp;&nbsp;• Re-sequence agencies by window closure time + perishability<br>
+          &nbsp;&nbsp;• Calculate distance, fuel cost, estimated spoilage<br>
+          &nbsp;&nbsp;• Compare to baseline<br>
+          <strong>Output:</strong> {optimized_route: [...], miles: 79, fuel_cost: $45, spoiled_lbs: 0, baseline_miles: 116}<br>
+          <strong>Key Point:</strong> Fewer stops = faster delivery = less spoilage. Quantifies the win.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-number">6</div>
+    <div class="timeline-content">
+      <h3>🍜 Impact Summarizer</h3>
+      <p>Answers: "In the one metric everyone understands—meals—what did we accomplish?"</p>
+      <div class="timeline-box">
+        <div class="agent-label">Tool: summarize_impact()</div>
+        <p style="margin: 0; color: var(--color-fog);">Aggregates all the numbers into one clear statement: how many meals are protected?</p>
+        <div class="agent-description">
+          <strong>Input:</strong> Gap size, procurement plan, route optimization<br>
+          <strong>Logic:</strong><br>
+          &nbsp;&nbsp;• Gap covered: shortfall_lbs ÷ 1.2 = meals<br>
+          &nbsp;&nbsp;• Spoilage saved: spoiled_lbs_baseline − spoiled_lbs_optimized ÷ 1.2 = meals<br>
+          &nbsp;&nbsp;• Dollars saved (reported separately): (premium avoided + fuel savings)<br>
+          &nbsp;&nbsp;• Meals fundable: dollars_saved ÷ food_bank_cost_per_meal<br>
+          <strong>Output:</strong> {total_meals_protected: 11000, breakdown: {gap_covered: 9417, spoilage_avoided: 1900}, cost_saved: $9800}<br>
+          <strong>Key Point:</strong> Dollars are separate from headline. Never double-count.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-number">7</div>
+    <div class="timeline-content">
+      <h3>✓ Human Approval Gate</h3>
+      <p>The plan is presented. A human planner reviews it and decides: Approve or Reject.</p>
+      <div class="timeline-box">
+        <div class="agent-label">Human Decision-Maker</div>
+        <p style="margin: 0; color: var(--color-fog);">A warehouse lead, operations manager, or planner sees the AI recommendation and makes the final call.</p>
+        <div class="agent-description">
+          <strong>They see:</strong> Plain-language recommendation + map of routes + impact card (meals protected)<br>
+          <strong>They decide:</strong> "Approve this plan" or "Reject and replan"<br>
+          <strong>Nothing auto-executes.</strong> Gleaner augments the human, doesn't replace them.<br>
+          <strong>Key Point:</strong> Speed (30 sec) + human wisdom = best outcome
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-item">
+    <div class="timeline-number">8</div>
+    <div class="timeline-content">
+      <h3>🚚 Dispatch & Execution</h3>
+      <p>The approved plan is sent to drivers, procurement contacts vendors, deliveries begin.</p>
+      <div class="timeline-box">
+        <div class="agent-label">Execution (Human Operations)</div>
+        <p style="margin: 0; color: var(--color-fog);">SMS to drivers, email to vendors, route updates to fleet management. The system's recommendation becomes action.</p>
+        <div class="agent-description">
+          <strong>Outcomes tracked:</strong> Delivery confirmations, actual spoilage, actual cost, actual meals delivered<br>
+          <strong>Future learning:</strong> Data feeds back for vendor reliability updates, route accuracy, cost modeling
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Architecture Diagram -->
+<section class="architecture">
+  <h2>System Architecture Layers</h2>
+  <div class="arch-diagram">
+    <div class="arch-layer">
+      <div class="arch-layer-title">📡 Data Layer (What the system knows)</div>
+      <div class="arch-items">
+        <div class="arch-item">
+          <div class="arch-item-title">Commitments</div>
+          <div class="arch-item-desc">TEFAP allocations, purchase orders, donor loads, lead times</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Inventory</div>
+          <div class="arch-item-desc">Current on-hand by category, expiration dates, storage capacity</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Agencies</div>
+          <div class="arch-item-desc">Partner locations, lat/lng, access windows, equity priority</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Vendors</div>
+          <div class="arch-item-desc">Catalog, pricing, lead time, reliability scores</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Fleet</div>
+          <div class="arch-item-desc">Truck capacity, refrigeration, fuel cost, depot location</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-layer">
+      <div class="arch-layer-title">🔧 Tool Layer (What the system can do)</div>
+      <div class="arch-items">
+        <div class="arch-item">
+          <div class="arch-item-title">size_gap()</div>
+          <div class="arch-item-desc">Calculate shortfall in lbs → meals at risk</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">find_fill()</div>
+          <div class="arch-item-desc">Search vendors → best price + lead time + reliability</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">replan_routes()</div>
+          <div class="arch-item-desc">Insert pickup → optimize stops → calculate savings</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">summarize_impact()</div>
+          <div class="arch-item-desc">Aggregate into one metric: meals protected</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-layer">
+      <div class="arch-layer-title">🧠 Orchestration Layer (Claude AI)</div>
+      <div class="arch-items">
+        <div class="arch-item">
+          <div class="arch-item-title">Understand</div>
+          <div class="arch-item-desc">Parse disruption, assess severity, identify scope</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Reason</div>
+          <div class="arch-item-desc">Decide which tools to call and in what order</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Execute</div>
+          <div class="arch-item-desc">Call tools sequentially, wait for results, chain reasoning</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Narrate</div>
+          <div class="arch-item-desc">Translate results into human-readable recommendation</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-layer">
+      <div class="arch-layer-title">👥 Human Layer (Always in control)</div>
+      <div class="arch-items">
+        <div class="arch-item">
+          <div class="arch-item-title">Monitor</div>
+          <div class="arch-item-desc">Watch live issues feed, see active disruptions</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Review</div>
+          <div class="arch-item-desc">See AI plan on map, read metrics, understand tradeoffs</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Decide</div>
+          <div class="arch-item-desc">Approve plan, request replanning, or override with domain expertise</div>
+        </div>
+        <div class="arch-item">
+          <div class="arch-item-title">Execute</div>
+          <div class="arch-item-desc">Dispatch drivers, contact vendors, manage on-the-ground logistics</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Data Flow Visualization - Animated SVG Diagram -->
+<section class="flow-diagram">
+  <h2 style="font-size: 28px; margin-bottom: 24px; color: var(--color-white);">🔄 Data Flow Through the System</h2>
+  <p style="color: var(--color-fog); margin-bottom: 32px;">How information moves from signal to decision:</p>
+
+  <div class="flow-svg-container">
+    <svg viewBox="0 0 1200 300" class="flow-svg" style="min-height: 300px;">
+      <!-- Define gradients -->
+      <defs>
+        <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#007afc;stop-opacity:0.3" />
+          <stop offset="50%" style="stop-color:#007afc;stop-opacity:0.8" />
+          <stop offset="100%" style="stop-color:#007afc;stop-opacity:0.3" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Background line connecting all steps -->
+      <line x1="80" y1="150" x2="1120" y2="150" stroke="url(#arrowGradient)" stroke-width="2" opacity="0.5"/>
+
+      <!-- Step 1: Signal -->
+      <g class="flow-step-box">
+        <rect x="20" y="80" width="120" height="140" rx="12" fill="#1c1f24" stroke="#007afc" stroke-width="2" opacity="0.8"/>
+        <circle cx="80" cy="100" r="30" fill="#23262d" stroke="#007afc" stroke-width="2" filter="url(#glow)"/>
+        <text x="80" y="110" font-size="28" text-anchor="middle" fill="#007afc">📡</text>
+        <text x="80" y="160" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'">Disruption Signal</text>
+        <text x="80" y="195" font-size="11" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Load cut, delay, alert</text>
+      </g>
+
+      <!-- Arrow 1 -->
+      <g opacity="0.7">
+        <line x1="150" y1="150" x2="210" y2="150" stroke="#007afc" stroke-width="3"/>
+        <polygon points="210,150 200,145 205,150 200,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 2: Claude -->
+      <g class="flow-step-box">
+        <rect x="220" y="80" width="120" height="140" rx="12" fill="#1c1f24" stroke="#0062ca" stroke-width="2" opacity="0.8"/>
+        <circle cx="280" cy="100" r="30" fill="#23262d" stroke="#0062ca" stroke-width="2" filter="url(#glow)"/>
+        <text x="280" y="110" font-size="28" text-anchor="middle" fill="#0062ca">🧠</text>
+        <text x="280" y="160" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'">Claude Reads</text>
+        <text x="280" y="195" font-size="11" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Understands problem</text>
+      </g>
+
+      <!-- Arrow 2 -->
+      <g opacity="0.7">
+        <line x1="350" y1="150" x2="410" y2="150" stroke="#007afc" stroke-width="3"/>
+        <polygon points="410,150 400,145 405,150 400,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 3: Tools -->
+      <g class="flow-step-box">
+        <rect x="420" y="80" width="120" height="140" rx="12" fill="#1c1f24" stroke="#007afc" stroke-width="2" opacity="0.8"/>
+        <circle cx="480" cy="100" r="30" fill="#23262d" stroke="#007afc" stroke-width="2" filter="url(#glow)"/>
+        <text x="480" y="110" font-size="28" text-anchor="middle" fill="#007afc">🔧</text>
+        <text x="480" y="160" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'">Call Tools</text>
+        <text x="480" y="195" font-size="11" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">size_gap → find_fill</text>
+      </g>
+
+      <!-- Arrow 3 -->
+      <g opacity="0.7">
+        <line x1="550" y1="150" x2="610" y2="150" stroke="#007afc" stroke-width="3"/>
+        <polygon points="610,150 600,145 605,150 600,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 4: Aggregate -->
+      <g class="flow-step-box">
+        <rect x="620" y="80" width="120" height="140" rx="12" fill="#1c1f24" stroke="#228a56" stroke-width="2" opacity="0.8"/>
+        <circle cx="680" cy="100" r="30" fill="#23262d" stroke="#228a56" stroke-width="2" filter="url(#glow)"/>
+        <text x="680" y="110" font-size="28" text-anchor="middle" fill="#228a56">📊</text>
+        <text x="680" y="160" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'">Aggregate Data</text>
+        <text x="680" y="195" font-size="11" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Results + reasoning</text>
+      </g>
+
+      <!-- Arrow 4 -->
+      <g opacity="0.7">
+        <line x1="750" y1="150" x2="810" y2="150" stroke="#007afc" stroke-width="3"/>
+        <polygon points="810,150 800,145 805,150 800,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 5: Human Decision -->
+      <g class="flow-step-box">
+        <rect x="820" y="80" width="120" height="140" rx="12" fill="#1c1f24" stroke="#007afc" stroke-width="2" opacity="0.8"/>
+        <circle cx="880" cy="100" r="30" fill="#23262d" stroke="#007afc" stroke-width="2" filter="url(#glow)"/>
+        <text x="880" y="110" font-size="28" text-anchor="middle" fill="#007afc">✓</text>
+        <text x="880" y="160" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'">Human Decides</text>
+        <text x="880" y="195" font-size="11" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Approve or reject</text>
+      </g>
+
+      <!-- Arrow 5 to Execution -->
+      <g opacity="0.7">
+        <line x1="950" y1="150" x2="1010" y2="150" stroke="#007afc" stroke-width="3"/>
+        <polygon points="1010,150 1000,145 1005,150 1000,155" fill="#007afc"/>
+      </g>
+
+      <!-- Step 6: Execution -->
+      <g class="flow-step-box">
+        <rect x="1020" y="80" width="120" height="140" rx="12" fill="#1c1f24" stroke="#228a56" stroke-width="2" opacity="0.8"/>
+        <circle cx="1080" cy="100" r="30" fill="#23262d" stroke="#228a56" stroke-width="2" filter="url(#glow)"/>
+        <text x="1080" y="110" font-size="28" text-anchor="middle" fill="#228a56">🚚</text>
+        <text x="1080" y="160" font-size="13" font-weight="600" text-anchor="middle" fill="#ffffff" font-family="'Cera Pro'">Execute</text>
+        <text x="1080" y="195" font-size="11" text-anchor="middle" fill="#8b96aa" font-family="'Cera Pro'">Dispatch drivers</text>
+      </g>
+
+      <!-- Pulsing dots along the line -->
+      <circle cx="150" cy="150" r="4" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="350" cy="150" r="4" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
+      <circle cx="550" cy="150" r="4" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite" begin="1s"/>
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite" begin="1s"/>
+      </circle>
+      <circle cx="750" cy="150" r="4" fill="#007afc" opacity="0.6">
+        <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+      </circle>
+    </svg>
+  </div>
+
+  <div style="margin-top: 32px; padding: 24px; background: var(--color-gunmetal); border-radius: 12px; border-left: 3px solid var(--color-signal-blue);">
+    <p style="color: var(--color-fog); font-size: 14px; line-height: 1.8;">
+      <strong style="color: var(--color-white);">The Flow:</strong> A disruption signal arrives → Claude AI reads and understands it → Claude calls specialized tools (size_gap, find_fill, replan_routes) → Results are aggregated into one metric (meals protected) → A human decision-maker reviews and approves → The approved plan is executed (drivers dispatched, vendors contacted)
+    </p>
+  </div>
+</section>
+
+<!-- Tool Details -->
+<section class="tools-section">
+  <h2 style="font-size: 28px; margin-bottom: 32px; color: var(--color-white);">Tool Specifications</h2>
+
+  <div class="tool-card">
+    <h3><span class="tool-icon">▤</span> size_gap() — Gap Analysis</h3>
+    <p class="tool-desc">Calculates the impact of a cut/delayed load. How many meals are at risk? Which agencies? What's the shortfall?</p>
+    <div class="tool-input">commitment_id: "TEFAP-1042" (the cut load)</div>
+    <div class="tool-output">
+      {<br>
+      &nbsp;&nbsp;shortfall_lbs: 11300,<br>
+      &nbsp;&nbsp;meals_at_risk: 9417,<br>
+      &nbsp;&nbsp;affected_agencies: ["Food Bank 1", "Food Bank 2", ...],<br>
+      &nbsp;&nbsp;by_category: { protein: 11300 }<br>
+      }
+    </div>
+    <p style="font-size: 13px; color: var(--color-ash);">
+      <strong>Algorithm:</strong> Reads inventory.json (on-hand), commitments.json (inbound schedule), calculates net availability. Pure deterministic math, fully auditable.
+    </p>
+  </div>
+
+  <div class="tool-card">
+    <h3><span class="tool-icon">$</span> find_fill() — Procurement Search</h3>
+    <p class="tool-desc">Finds vendors who can deliver replacement food in time. Ranks by price and reliability. Avoids rush premiums.</p>
+    <div class="tool-input">
+      category: "protein",<br>
+      shortfall_lbs: 11300,<br>
+      time_window: 4 (hours available for delivery)
+    </div>
+    <div class="tool-output">
+      {<br>
+      &nbsp;&nbsp;vendor: "Sysco Purchase Order",<br>
+      &nbsp;&nbsp;price_per_lb: 200,<br>
+      &nbsp;&nbsp;lead_time_hours: 2,<br>
+      &nbsp;&nbsp;reliability_score: 0.95,<br>
+      &nbsp;&nbsp;total_cost: $2260000,<br>
+      &nbsp;&nbsp;premium_avoided: $9800 (vs. panic buy)<br>
+      }
+    </div>
+    <p style="font-size: 13px; color: var(--color-ash);">
+      <strong>Algorithm:</strong> Searches vendors.json, filters by (lead_time &lt; window), ranks by (price × reliability). Compares to baseline panic pricing.
+    </p>
+  </div>
+
+  <div class="tool-card">
+    <h3><span class="tool-icon">⟿</span> replan_routes() — Routing Optimizer</h3>
+    <p class="tool-desc">Takes the current delivery plan and the new vendor pickup. Re-sequences stops to minimize distance, prevent spoilage, honor access windows.</p>
+    <div class="tool-input">
+      new_vendor_location: {lat, lng},<br>
+      existing_agencies: [{lat, lng, window_close_time, perishability}, ...],<br>
+      vehicle_capacity: 50000 lbs<br>
+    </div>
+    <div class="tool-output">
+      {<br>
+      &nbsp;&nbsp;optimized_route: [vendor, agency_2, agency_5, agency_1, ...],<br>
+      &nbsp;&nbsp;optimized_miles: 79,<br>
+      &nbsp;&nbsp;optimized_spoiled_lbs: 0,<br>
+      &nbsp;&nbsp;baseline_miles: 116,<br>
+      &nbsp;&nbsp;baseline_spoiled_lbs: 1900,<br>
+      &nbsp;&nbsp;miles_saved: 37,<br>
+      &nbsp;&nbsp;fuel_cost_saved: $45<br>
+      }
+    </div>
+    <p style="font-size: 13px; color: var(--color-ash);">
+      <strong>Algorithm:</strong> Greedy nearest-neighbor with constraints (time windows, perishability). Calculates distance via lat/lng, spoilage via time-to-arrival + product shelf life.
+    </p>
+  </div>
+
+  <div class="tool-card">
+    <h3><span class="tool-icon">🍜</span> summarize_impact() — Impact Aggregation</h3>
+    <p class="tool-desc">Combines all results into one metric: meals protected. Converts dollars to additional meals the food bank can fund.</p>
+    <div class="tool-input">
+      gap_meals: 9417,<br>
+      spoilage_saved_meals: 1900,<br>
+      cost_saved: $9800,<br>
+      food_bank_cost_per_meal: $1.78
+    </div>
+    <div class="tool-output">
+      {<br>
+      &nbsp;&nbsp;total_meals_protected: 11317,<br>
+      &nbsp;&nbsp;breakdown: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;gap_covered: 9417,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;spoilage_avoided: 1900<br>
+      &nbsp;&nbsp;},<br>
+      &nbsp;&nbsp;cost_saved: $9800,<br>
+      &nbsp;&nbsp;meals_fundable_with_savings: 5506<br>
+      }
+    </div>
+    <p style="font-size: 13px; color: var(--color-ash);">
+      <strong>Design Choice:</strong> Dollars are reported SEPARATELY and converted via the food bank's own cost/meal. Never inflated into headline.
+    </p>
+  </div>
+</section>
+
+<!-- Key Design Principles -->
+<section>
+  <h2 style="font-size: 28px; margin-bottom: 24px; color: var(--color-white);">Why This Architecture Works</h2>
+
+  <div class="key-points">
+    <div class="point-card">
+      <div class="point-icon">🤖 → 🔧</div>
+      <h4>AI Orchestrates, Tools Calculate</h4>
+      <p>Claude (reasoning) decides what to ask. Tools (math) answer auditably. No hallucination, no guessing. Numbers are real.</p>
+    </div>
+
+    <div class="point-card">
+      <div class="point-icon">⚡</div>
+      <h4>Speed Through Parallelization</h4>
+      <p>Some tools could run in parallel (gap analysis and vendor search). Sequential here for clarity. Easy to optimize.</p>
+    </div>
+
+    <div class="point-card">
+      <div class="point-icon">👥</div>
+      <h4>Human Always Decides</h4>
+      <p>AI proposes. Humans approve. No auto-execution. Gleaner is a tool for planners, not a replacement. Augment, don't replace.</p>
+    </div>
+
+    <div class="point-card">
+      <div class="point-icon">🍜</div>
+      <h4>One Metric: Meals</h4>
+      <p>Not miles, not dollars, not logistics points. Real food to real people. Procurement team, distribution team, food bank CEO—everyone speaks meals.</p>
+    </div>
+
+    <div class="point-card">
+      <div class="point-icon">📊</div>
+      <h4>Data-Driven, Not Assumption-Based</h4>
+      <p>Every number comes from data files (agencies.json, vendors.json, inventory.json). Swap in real data, get real results. No magic.</p>
+    </div>
+
+    <div class="point-card">
+      <div class="point-icon">🔄</div>
+      <h4>Deterministic Fallback</h4>
+      <p>Same logic runs with or without Claude. Offline demo mode works. Reliability first, AI second. Hybrid approach.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p>Gleaner — System Architecture</p>
+  <p style="margin-top: 8px;">Each agent has one job. Together, they coordinate disruption-to-dispatch in 30 seconds. Human approves. Everything is auditable.</p>
+</footer>
+
+</body>
+</html>

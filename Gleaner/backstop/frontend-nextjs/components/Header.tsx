@@ -38,11 +38,8 @@ export default function Header() {
           <a href="#features" style={{ color: '#a0aaba', fontSize: '14px', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.color = '#007afc'} onMouseOut={(e) => e.currentTarget.style.color = '#a0aaba'}>
             Features
           </a>
-          <Link href="/architecture" style={{ color: '#a0aaba', fontSize: '14px', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.color = '#007afc'} onMouseOut={(e) => e.currentTarget.style.color = '#a0aaba'}>
+          <Link href="/architecture" style={{ color: '#a0aaba', fontSize: '14px', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#007afc'} onMouseOut={(e) => e.currentTarget.style.color = '#a0aaba'}>
             Architecture
-          </Link>
-          <Link href="/platform/connect" style={{ color: '#a0aaba', fontSize: '14px', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.currentTarget.style.color = '#007afc'} onMouseOut={(e) => e.currentTarget.style.color = '#a0aaba'}>
-            Platform
           </Link>
           <Link href="/app" className="btn-primary" style={{ fontSize: '14px', padding: '10px 24px', display: 'inline-block' }}>
             Launch App →
