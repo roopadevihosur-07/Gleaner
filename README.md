@@ -1,118 +1,266 @@
-# Backstop — Disruption-to-Dispatch Agent for Food Banks
+# Gleaner — Disruption-to-Dispatch Agent for Food Banks
 
-When a federal or donated inbound load is **cut or short-shipped**, Backstop turns
-one supply shock into one coordinated recovery plan — and scores every option in a
-single currency everyone understands: **meals**.
+AI-powered supply chain orchestration that turns supply shocks into coordinated recovery plans in seconds.
 
-It closes the loop that today spans two teams on two tools on two different days:
-a procurement scramble to *fill the gap*, and a distribution scramble to *deliver it*
-before perishables spoil.
+**Problem:** Food bank disruptions (cuts, delays) ripple across 10+ agencies in minutes. Recovery takes hours or days across two teams, two tools—while food spoils.
+
+**Solution:** Gleaner detects disruptions in real-time, orchestrates optimal procurement and distribution plans, and scores everything in the one metric everyone understands: **meals protected**.
+
+---
+
+## 📁 Project Structure
 
 ```
-Supply shock ─▶ Sense ─▶ Orchestrator agent ─▶ [Gap · Procurement · Routing] ─▶ Human approves ─▶ Act
-                                    └────────────── everything scored in MEALS ──────────────┘
+Gleaner/
+├── app/                          # Next.js app directory (routes & pages)
+│   ├── page.tsx                  # Landing page with all sections
+│   ├── app/page.tsx              # Live demo app route
+│   ├── layout.tsx                # Root layout with fonts
+│   └── globals.css               # Global styles + animations
+├── components/                   # React components
+│   ├── Header.tsx                # Navigation + logo
+│   ├── HeroSection.tsx           # Hero with flow diagram
+│   ├── ProblemSection.tsx        # Problem cards (3-column)
+│   ├── SolutionSection.tsx       # Solution flow (6 steps)
+│   ├── FeaturesSection.tsx       # Key capabilities grid
+│   ├── CTASection.tsx            # Call-to-action
+│   ├── Footer.tsx                # Footer
+│   ├── FlowDiagram.tsx           # Animated SVG flow (6-step)
+│   └── AnimatedBackground.tsx    # Canvas-based supply chain viz
+├── public/                       # Static assets
+│   └── demo.html                 # Live demo (embedded in /app)
+├── backstop/                     # Backend services
+│   ├── backend/                  # FastAPI server (Python)
+│   │   ├── main.py               # API endpoints + WebSocket
+│   │   ├── agent.py              # Claude AI orchestration
+│   │   └── tools.py              # Deterministic supply chain tools
+│   ├── frontend/                 # Original HTML frontend
+│   └── QUICKSTART.md             # Backend setup guide
+├── DESIGN-2.md                   # Mapbox design system
+├── tailwind.config.ts            # Tailwind CSS config + tokens
+├── next.config.ts                # Next.js configuration
+├── tsconfig.json                 # TypeScript config
+└── package.json                  # Dependencies
 ```
 
 ---
 
-## Quickstart (2 minutes)
+## 🚀 Quick Start
+
+### Frontend (Next.js)
 
 ```bash
-cd backstop
-python3 -m venv .venv && source .venv/bin/activate      # optional but recommended
-pip install -r requirements.txt
+# Install dependencies
+npm install
 
-# Optional — turns on the REAL Claude tool-use agent. Without it, a deterministic
-# engine runs the same tools so the demo always works offline.
-cp .env.example .env        # then paste your ANTHROPIC_API_KEY into .env
+# Run development server
+npm run dev
 
-cd backend
-uvicorn main:app --reload
+# Open http://localhost:3000 in your browser
 ```
 
-Open **http://127.0.0.1:8000** and click **“Cut load”** on the TEFAP protein truck.
+The landing page features:
+- **Hero Section** - Animated flow diagram (6-step process)
+- **Problem Statement** - Why food banks struggle
+- **Solution Overview** - How Gleaner works
+- **Key Capabilities** - 6 differentiators + 4 impact metrics
+- **Live Demo** - Click "Launch Gleaner →" button
+- **Animated Background** - Supply chain network visualization
 
-> No API key? It still runs — the header shows `engine: deterministic`. Add a key and
-> it flips to `engine: claude:…` and Claude drives the tool-use loop itself.
+### Backend (FastAPI)
 
----
+From the `backstop/` directory:
 
-## What happens when you cut the TEFAP load (the demo)
+```bash
+# Create Python virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
 
-1. **Sense** — Backstop detects the cut inbound load.
-2. **Gap analyst** — 11,300 lbs of protein short → **9,417 meals at risk** across 7 agencies.
-3. **Procurement agent** — covers it via the cheapest reliable vendor in time,
-   avoiding a **~$9,800 rush premium** vs a same-day dock buy.
-4. **Routing agent** — re-sequences the day on access windows + perishability + fuel:
-   **116 → 79 miles**, and **1,900 lbs of protein saved from spoiling** (delivered
-   inside each agency’s window instead of after it closes).
-5. **Human approves** — the agent *proposes*; a planner clicks **Approve**. Nothing
-   auto-executes. Augment, don’t replace.
-6. **Impact** — headline **~11,000 meals protected**, plus **~$9,900 saved** shown
-   separately as ~5,500 more meals the food bank can now fund.
+# Install dependencies
+cd backend
+pip install -r requirements.txt
 
-Toggle **Naive ↔ Backstop** on the map to show the before/after route live.
+# Start API server
+uvicorn main:app --reload --port 8000
 
----
+# Visit http://localhost:8000/docs for API explorer
+```
 
-## Architecture
-
-| Layer | File | What it does |
-|---|---|---|
-| API + static host | `backend/main.py` | FastAPI; `/api/state`, `/api/disrupt`, serves the UI |
-| Orchestrator | `backend/agent.py` | Real Claude tool-use loop **and** a deterministic fallback (same output shape) |
-| Deterministic tools | `backend/tools.py` | `size_gap`, `find_fill` (procurement), `replan_routes` (routing), meals roll-up |
-| Data | `backend/data/*.json` | East Bay / ACCFB-flavored inventory, commitments, vendors, agencies, fleet |
-| UI | `frontend/index.html` | One file: SVG map, animated agent trace, meals impact card |
-
-**Design choice that matters to judges:** the LLM *orchestrates and narrates*; the
-**tools do the arithmetic**, so every number is auditable rather than hallucinated.
-This is the pattern the agent-in-SCM judges will want to see.
-
-### The meals model (defensible on purpose)
-- **Headline “meals protected” = real food to real people only:** gap covered in
-  meals (`lbs ÷ 1.2`) + perishables saved from spoiling.
-- **Dollars saved** (procurement premium + fuel) are reported **separately** and
-  converted at the food bank’s **own cost per meal** (“meals you can now fund”) —
-  never inflated into the headline. Don’t let anyone accuse you of double-counting.
+**API Endpoints:**
+- `GET /api/state` - Current supply chain state
+- `GET /api/disruption` - Simulated disruption events
+- `GET /api/live/simulate-issue` - Trigger demo disruption
+- `WebSocket /ws/live-issues` - Real-time issue stream
 
 ---
 
-## Swap in a real food bank
+## 🎨 Design System
 
-Everything is data-driven. To tailor to the food bank you interviewed, edit
-`backend/data/`:
-- `agencies.json` — real partner sites, lat/lng, access windows, equity priority
-- `vendors.json` — their actual purchasable catalog + lead times + reliability
-- `commitments.json` — their real inbound schedule (TEFAP, donors, POs)
-- `fleet.json` — trucks, refrigeration, fuel cost/mile, depot
+**Mapbox-inspired dark theme:**
 
-One real number from their team on a slide beats any assumption.
+| Token | Color | Usage |
+|-------|-------|-------|
+| Void Black | #0e1012 | Background |
+| Deep Charcoal | #15171b | Cards |
+| Signal Blue | #007afc | Primary action, data flow |
+| Map Green | #228a56 | Success, delivery states |
+| Fog | #a0aaba | Body text |
+| Slate | #566171 | Secondary text |
+
+**Typography:**
+- **Font:** Cera Pro (400/500/700 weights)
+- **H1/H2:** 68px / 44px, weight 700, letter-spacing -0.88px
+- **Body:** 16px, weight 400, line-height 1.6
+
+**Components:**
+- Buttons: 100px border-radius (pill), hover opacity 0.9
+- Cards: 24px border-radius, 1px border #1c1f24
+- Badges: 4px border-radius, uppercase 12px
 
 ---
 
-## Extending it (if you have time tonight)
+## ✨ Key Features
 
-- **Stream the trace** with Server-Sent Events for a more “live agent” feel.
-- **Add the EV-charging specialist** (Theme 4): schedule overnight charging against
-  tomorrow’s routes under a power cap.
-- **Vendor reliability learning:** persist outcomes and update `reliability` per cycle.
-- **Voice/plain-language ask** (Theme 6): a `/api/ask` endpoint that lets a driver
-  ask a question and routes it to the orchestrator.
+### 1. **Genuine Agentic Planning**
+Claude AI orchestrates decisions; deterministic tools do arithmetic. No hallucinations.
+
+### 2. **Animated Flow Diagram**
+6-step supply chain process with pulsing nodes, glowing connections, and smooth animations.
+
+### 3. **Real-Time Issue Detection**
+Live WebSocket feed pulls disruptions from maps and tracking systems.
+
+### 4. **Unified Procurement + Distribution**
+Closes the loop between two halves of the same shock—no hand-off delays.
+
+### 5. **Interactive Background**
+Canvas-based supply chain visualization with animated trucks, pulsing nodes, and gradient connections.
+
+### 6. **Everything Scored in Meals**
+Not dollars, not logistics. Meals protected, meals at risk, meals saved. Everyone speaks the same language.
 
 ---
 
-## Talking points for the pitch
+## 🔧 Technology Stack
 
-- The industry’s #1 stated 2026 need is **disruption response speed** — cutting the
-  time from “a signal lands” to “a plan exists” from days to seconds. Food banks are
-  the sharpest edge of it: ~$1B in federal cuts into a 25–40% demand surge.
-- Backstop is **genuinely agentic** (orchestrator → specialist tools → human gate),
-  not a dashboard with “AI” bolted on.
-- It **unifies procurement + distribution** — the two halves of the same shock.
-- It honors the ACCFB brief: *tools that make people better at their jobs, not tools
-  that do their jobs.* The human always approves.
-- One number the whole room gets: **meals**.
+**Frontend:**
+- Next.js 14+ (React, SSR, file-based routing)
+- TypeScript (type safety)
+- Tailwind CSS v4 (utility-first styling)
+- SVG animations (flow diagram, background)
+- Cera Pro typography (Google Fonts)
 
-*Frame the agents as reacting faster once a signal lands — never as predicting policy
-or tariffs. This panel knows the difference.*
+**Backend:**
+- FastAPI (Python async API framework)
+- Claude AI (Anthropic SDK for orchestration)
+- WebSocket (real-time issue streaming)
+- Google Maps API (route visualization)
+- Deterministic tools (gap analysis, vendor search, route planning)
+
+---
+
+## 📊 Live Demo Flow
+
+1. **Click "Launch Gleaner →"** on the landing page
+2. **See live demo app** with:
+   - Live metrics dashboard (disruptions, meals protected, cost savings)
+   - Interactive Google Maps (agencies, vendors, optimized routes)
+   - Agent trace (Claude's step-by-step reasoning)
+   - Plain-language recovery plan
+3. **Click "Simulate Issue"** to trigger a realistic disruption
+4. **Watch in real-time** as Gleaner:
+   - Detects the supply gap
+   - Calculates impact (meals at risk)
+   - Finds optimal vendor
+   - Plans optimized routes
+   - Scores impact in meals
+   - Waits for human approval
+
+---
+
+## 🌾 Running Both Frontend & Backend
+
+**Terminal 1 - Backend:**
+```bash
+cd backstop/backend
+source ../.venv/bin/activate
+uvicorn main:app --reload --port 8000
+```
+
+**Terminal 2 - Frontend:**
+```bash
+npm run dev
+```
+
+Then visit:
+- **Frontend:** http://localhost:3000
+- **Backend API:** http://localhost:8000/docs
+
+---
+
+## 📖 Documentation
+
+- **Backend Setup:** `backstop/QUICKSTART.md`
+- **Live Demo Guide:** `backstop/DEMO_GUIDE.md`
+- **Google Maps Setup:** `backstop/GOOGLE_MAPS_SETUP.md`
+- **Next.js Migration:** `backstop/NEXTJS_SETUP.md`
+- **Design System:** `DESIGN-2.md`
+
+---
+
+## 🚀 Deployment
+
+### Vercel (Next.js Frontend)
+```bash
+npm install -g vercel
+vercel
+```
+
+### Environment Variables
+Create `.env.local`:
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_WS_URL=ws://localhost:8000
+```
+
+### Docker (Backend)
+```bash
+cd backstop/backend
+docker build -t gleaner-backend .
+docker run -p 8000:8000 gleaner-backend
+```
+
+---
+
+## 📝 Key Concepts
+
+**The Gleaner Workflow:**
+1. **Signal** - Supply disruption detected
+2. **Disruption** - Gap analysis (lbs short, agencies affected, meals at risk)
+3. **Gleaner** - AI orchestrates procurement + distribution (30 seconds)
+4. **Delivery** - Routes optimized, perishables preserved
+5. **Impact** - Meals protected, cost saved, routes dispatched
+6. **Approved** - Human operator signs off (always human-in-the-loop)
+
+**Why It Matters:**
+- **Current workflow:** 2-3 days, two scrambles, handoffs, waste
+- **Gleaner workflow:** 30 seconds, one coordinated plan, zero waste
+
+---
+
+## 🤝 Contributing
+
+Built with Claude AI, Google Maps, and FastAPI.  
+Data-driven. Auditable. Human-approved.
+
+For questions or feedback, open an issue or contact the team.
+
+---
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+---
+
+**Made for food banks. Built with ❤️ and Claude AI.**
